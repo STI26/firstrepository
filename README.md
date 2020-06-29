@@ -1,1 +1,1 @@
-# firstrepository
+# Technical Department Journal
