@@ -9,6 +9,9 @@ class Departments(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Department"
+
 
 class Employees(models.Model):
     is_deleted = models.BooleanField(default=False)
@@ -20,6 +23,9 @@ class Employees(models.Model):
     def __str__(self):
         return f'{self.l_name} {self.f_name}({self.department})'
 
+    class Meta:
+        verbose_name = "Employee"
+
 
 class Buildings(models.Model):
     is_deleted = models.BooleanField(default=False)
@@ -28,6 +34,9 @@ class Buildings(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Building"
 
 
 class Locations(models.Model):
@@ -40,6 +49,9 @@ class Locations(models.Model):
     def __str__(self):
         return f'{self.office}; {self.department}; {self.building}'
 
+    class Meta:
+        verbose_name = "Location"
+
 
 class Brands(models.Model):
     is_deleted = models.BooleanField(default=False)
@@ -49,6 +61,9 @@ class Brands(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Brand"
+
 
 class Type_of_equipment(models.Model):
     is_deleted = models.BooleanField(default=False)
@@ -56,6 +71,10 @@ class Type_of_equipment(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Type_of_equipment"
+        verbose_name_plural = "Type_of_equipment"
 
 
 class Equipment(models.Model):
@@ -66,6 +85,10 @@ class Equipment(models.Model):
 
     def __str__(self):
         return f'{self.type}; {self.brand}; {self.model}'
+
+    class Meta:
+        verbose_name = "Equipment"
+        verbose_name_plural = "Equipment"
 
 
 class Repairs(models.Model):
@@ -99,3 +122,6 @@ class Repairs(models.Model):
                 {self.equipment};
                 {self.date_out}
                 """
+
+    class Meta:
+        verbose_name = "Repair"
