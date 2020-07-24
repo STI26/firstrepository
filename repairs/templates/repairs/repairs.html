@@ -1,0 +1,115 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}
+Ремонты
+{% endblock %}
+
+{% block main %}
+  <!-- main block -->
+  <div class="main">
+    <!-- filter -->
+    <div class="filter">
+      <div>
+        <input type="checkbox" class="switch" id="show-all-columns">
+        <label for="show-all-columns" tooltip="Подробно" class="show-tooltip">
+          <i data-feather="layers" class="svg-title"></i>
+        </label>
+        <input type="checkbox" class="switch" id="active-repairs">
+        <label for="active-repairs" tooltip="Активные" class="show-tooltip">
+          <i data-feather="activity" class="svg-title"></i>
+        </label>
+        <input type="checkbox" class="switch" id="update-repairs">
+        <label for="update-repairs" tooltip="Обновлять" class="show-tooltip">
+          <i data-feather="refresh-ccw" class="svg-title"></i>
+        </label>
+      </div>
+      <div>
+        <span id="db-time-update" title="время обновления данных">{{ time }}</span>
+        <span title="удалить запись">
+          <i data-feather="minus-circle" class="action" id="remove-row"></i>
+        </span>
+        <span title="редактировать запись">
+          <i data-feather="edit" class="action" id="edit-row"></i>
+        </span>
+        <span title="добавить запись">
+          <i data-feather="plus-circle" class="action" id="add-row"></i>
+        </span>
+      </div>
+    </div>
+    <!-- /filter -->
+    <!-- table -->
+    <ol class="table-conteiner table-repairs">
+      <li class="item item-conteiner">
+        <div class="attribute">#</div>
+        <div class="attribute-conteiner input-info">
+          <div class="attribute date-in">Дата получения</div>
+          <div class="attribute-conteiner input-names">
+            <div class="attribute customer-in">В ремонт сдал</div>
+            <div class="attribute employee">В ремонт принял</div>
+          </div>
+        </div>
+        <div class="attribute-conteiner deparment-info">
+          <div class="attribute department">Служба</div>
+          <div class="attribute phone">Телефон</div>
+        </div>
+        <div class="attribute-conteiner equipment-info">
+          <div class="attribute-conteiner equipment-id">
+            <div class="attribute equipment">Техника</div>
+            <div class="attribute inv">Инв.#</div>
+          </div>
+          <div class="attribute defect">Неисправность</div>
+        </div>
+        <div class="attribute-conteiner work-info">
+          <div class="attribute work">Проведённые работы</div>
+          <div class="attribute note">Примечание</div>
+        </div>
+        <div class="attribute-conteiner output-info">
+          <div class="attribute customer-out">Из ремонта получил</div>
+          <div class="attribute date-out">Дата выдачи</div>
+        </div>
+      </li>
+      {% for col in repairs.repairs %}
+      <li class="item item-conteiner">
+        <div class="attribute" data-name="#">{{ col.id }}</div>
+        <div class="attribute-conteiner input-info">
+          <div class="attribute date-in" title="{{ col.date_in }}" data-name="Дата получения">{{ col.date_in }}</div>
+          <div class="attribute-conteiner input-names">
+            <div class="attribute customer-in" title="{{ col.customer_id_in }}" data-name="В ремонт сдал">{{ col.customer_id_in }}</div>
+            <div class="attribute employee" title="{{ col.employee_id }}" data-name="В ремонт принял">{{ col.employee_id }}</div>
+          </div>
+        </div>
+        <div class="attribute-conteiner deparment-info">
+          <div class="attribute deparment" title="{{ col.department_id }}" data-name="Служба">{{ col.department_id }}</div>
+          <div class="attribute phone" title="{{ col.phone }}" data-name="Телефон">{{ col.phone }}</div>
+        </div>
+        <div class="attribute-conteiner equipment-info">
+          <div class="attribute-conteiner equipment-id">
+            <div class="attribute equipment" title="{{ col.equipment_id }}" data-name="Техника">{{ col.equipment_id }}</div>
+            <div class="attribute inv" title="{{ col.inv_number }}" data-name="Инв.#">{{ col.inv_number }}</div>
+          </div>
+          <div class="attribute defect" title="{{ col.defect }}" data-name="Неисправность">{{ col.defect }}</div>
+        </div>
+        <div class="attribute-conteiner work-info">
+          <div class="attribute work" title="{{ col.repair }}" data-name="Проведённые работы">{{ col.repair }}</div>
+          <div class="attribute note" title="{{ col.current_state }}" data-name="Примечание">{{ col.current_state }}</div>
+        </div>
+        <div class="attribute-conteiner output-info">
+          <div class="attribute customer-out" title="{{ col.customer_id_out }}" data-name="Из ремонта получил">{{ col.customer_id_out }}</div>
+          <div class="attribute date-out" title="{{ col.date_out }}" data-name="Дата выдачи">{{ col.date_out }}</div>
+        </div>
+      </li>
+      {% endfor%}
+    </ol>
+    <!-- /table -->
+
+
+  </div>
+  <!-- /main block -->
+
+  {% include "includes/_modal.html" %}
+  {% include "includes/_auxiliary_modal.html" %}
+{% endblock %}
+
+{% block js %}
+  <script src="../static/js/4r.min.js"></script>
+{% endblock %}

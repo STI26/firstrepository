@@ -1,0 +1,118 @@
+<!-- The Modal -->
+<div class="modal" id="modal-current-row">
+  <div class="modal-content">
+    <form id="modal-form" action="/repairs" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4>Запись #<span id="modal-id"></span></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <h6>Принято в ремонт.</h6>
+        <div class="modal-row">
+          <div class="modal-item flex-1">
+            <label for="modal-date-in">Дата:</label>
+            <div class="btn-block size-s">
+              <input class="flatpickr" type="text" id="modal-date-in" autocomplete="off" placeholder="">
+              <button type="button" class="btn-x">x</button>
+            </div>
+          </div>
+          <div class="modal-item flex-2">
+            <label for="modal-department">Отдел:</label>
+            <div class="btn-block size-s">
+              <select id="modal-department"></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-2">
+            <label for="modal-location">Расположение:</label>
+            <div class="btn-block size-s">
+              <select id="modal-location"></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-phone">тел.:</label>
+            <input class="txt size-s" type="text" id="modal-phone" autocomplete="off" placeholder="" disabled>
+          </div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-item flex-1">
+            <label for="modal-customer-in">Сдал:</label>
+            <div class="btn-block size-s">
+              <select id="modal-customer-in"></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-2">
+            <label for="modal-equipment-type">Техника(тип):</label>
+            <div class="btn-block size-s">
+              <select id="modal-equipment-type"></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-2">
+            <label for="modal-equipment-name">Техника(название):</label>
+            <div class="btn-block size-s">
+              <select id="modal-equipment-name"></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-inv">Инв.#:</label>
+            <input class="txt size-s" type="text" id="modal-inv" maxlength="15" autocomplete="off" placeholder="">
+          </div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-item flex-1">
+            <label for="modal-employee">Принял:</label>
+            <div class="btn-block size-s">
+              <select id="modal-employee"></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-5">
+            <label for="modal-defect">Неисправность:</label>
+            <input class="txt size-s" type="text" id="modal-defect" autocomplete="off" placeholder="">
+          </div>
+        </div>
+        <h6>Выдано с ремонта.</h6>
+        <div class="modal-row">
+          <div class="modal-item flex-1">
+            <label for="modal-repair">Проведённые работы:</label>
+            <input class="txt size-s" type="text" id="modal-repair" autocomplete="off" placeholder="">
+          </div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-item flex-4">
+            <label for="modal-current-state">Текушее состояние:</label>
+            <input class="txt size-s" type="text" id="modal-current-state" autocomplete="off" placeholder="">
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-customer-out">Получил:</label>
+            <div class="btn-block size-s">
+              <select id="modal-customer-out"></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-date-out">Дата:</label>
+            <div class="btn-block size-s">
+              <input class="flatpickr" type="text" id="modal-date-out" autocomplete="off" placeholder="">
+              <button type="button" class="btn-x">x</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-current-row">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+  </div>
+</div>
+<!-- /The Modal -->

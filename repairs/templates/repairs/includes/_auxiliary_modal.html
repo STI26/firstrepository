@@ -1,0 +1,215 @@
+<!-- Auxiliary Modal -->
+<div class="modal modal-auxiliary" id="modal-auxiliary">
+  <div class="modal-content">
+    <form class="modal-auxiliary-form" id="modal-department-add" action="/repairs" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-item flex-2">
+            <label for="modal-new-department-name">Полное название:</label>
+            <input type="text" class="txt size-s" id="modal-new-department-name" maxlength="100" autocomplete="off" placeholder="" required>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-department-short-name">Сокращённое название:</label>
+            <input type="text" class="txt size-s" id="modal-new-department-short-name" maxlength="10" autocomplete="off" placeholder="">
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-auxiliary">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+    <form class="modal-auxiliary-form" id="modal-location-add" action="/repairs" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-item flex-2">
+            <label for="modal-department-for-new-location">Отдел:</label>
+            <select class="txt size-s" id="modal-department-for-new-location" required></select>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-location-office">Кабинет:</label>
+            <input type="text" class="txt size-s" id="modal-new-location-office" maxlength="30" autocomplete="off" placeholder="">
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-location-phone">Телефон:</label>
+            <input type="text" class="txt size-s" id="modal-new-location-phone" maxlength="30" autocomplete="off" placeholder="">
+          </div>
+          <div class="modal-item flex-2">
+            <label for="modal-new-location-building">Корпус:</label>
+            <select class="txt size-s" id="modal-new-location-building"></select>
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-auxiliary">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+    <form class="modal-auxiliary-form" id="modal-employee-add" action="/repairs" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-item flex-1">
+            <label for="modal-new-lname">Фамилия:</label>
+            <input type="text" class="txt size-s" id="modal-new-lname" maxlength="20" autocomplete="off" placeholder="" required>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-fname">Имя:</label>
+            <input type="text" class="txt size-s" id="modal-new-fname" maxlength="20" autocomplete="off" placeholder="">
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-pname">Отчество:</label>
+            <input type="text" class="txt size-s" id="modal-new-pname" maxlength="20" autocomplete="off" placeholder="">
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-department-for-new-employee">Отдел:</label>
+            <select class="txt size-s" id="modal-department-for-new-employee"></select>
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-auxiliary">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+    <form class="modal-auxiliary-form" id="modal-equipment-type-add" action="/repairs" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-item flex-1">
+            <label for="modal-new-equipment-type">Тип техники:</label>
+            <input type="text" class="txt size-s" id="modal-new-equipment-type" maxlength="20" autocomplete="off" placeholder="" required>
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-auxiliary">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+    <form class="modal-auxiliary-form" id="modal-equipment-name-add" action="/repairs" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-item flex-1">
+            <label for="modal-new-equipment-type-id">Тип:</label>
+            <select class="txt size-s" id="modal-new-equipment-type-id" required></select>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-equipment-brand">Брэнд:</label>
+            <input type="text" class="txt size-s" id="modal-new-equipment-brand" maxlength="20" autocomplete="off" placeholder="">
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-equipment-model">Модель:</label>
+            <input type="text" class="txt size-s" id="modal-new-equipment-model" maxlength="30" autocomplete="off" placeholder="">
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-auxiliary">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+    <form class="modal-auxiliary-form" id="modal-building-add" action="/repairs" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-item flex-2">
+            <label for="modal-new-building">Полное название:</label>
+            <input type="text" class="txt size-s" id="modal-new-building" maxlength="100" autocomplete="off" placeholder="" required>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-building-short-name">Сокращённое название:</label>
+            <input type="text" class="txt size-s" id="modal-new-building-short-name" maxlength="10" autocomplete="off" placeholder="">
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-auxiliary">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+    <form class="modal-auxiliary-form" id="modal-user-add" action="/register" metod="POST">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4></h4>
+      </div>
+      <!-- /Modal Header -->
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-item flex-2">
+            <label for="modal-new-username">Имя пользователя:</label>
+            <input type="text" class="txt size-s" id="modal-new-username" minlength="4" maxlength="20" autocomplete="off" placeholder="" required>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-password">Пароль:</label>
+            <input type="password" class="txt size-s" id="modal-new-password" minlength="6" maxlength="20" autocomplete="off" placeholder="" required>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-new-confirm">Подтверждение:</label>
+            <input type="password" class="txt size-s" id="modal-new-confirm" minlength="6" maxlength="20" autocomplete="off" placeholder="" required>
+          </div>
+        </div>
+      </div>
+      <!-- /Modal body -->
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-target="modal-auxiliary">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+      <!-- /Modal footer -->
+    </form>
+  </div>
+</div>
+<!-- /Auxiliary Modal -->

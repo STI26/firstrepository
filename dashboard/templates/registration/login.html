@@ -1,0 +1,66 @@
+{% extends "../dashboard/layout.html" %}
+{% load static %}
+
+{% block title %}
+Вход
+{% endblock %}
+
+{% block main %}
+  <div class="login-form">
+    <div class="login-form-inner">
+      <div class="login-form-simple">
+        <div class="header-form">
+          <span>Вход:</span>
+          <img src="{% static 'dashboard/img/logo_small.png' %}" alt="logo website">
+        </div>
+
+        <form class="main-form" data-auth="simpleAuthentication" action="/login" method="post">
+          <input class="txt" type="text" name="username" value="" placeholder="Имя" autocomplete="off" autofocus required>
+          <input class="txt" type="password" name="password" value="" placeholder="Пароль" autocomplete="off" required>
+          <input type="submit" class="btn btn-primary" value="Войти">
+        </form>
+
+        <div class="footer-form">
+          <p>или</p>
+          <a href="javascript:void(0);" id="display-oes-form">войти через MicroFocus</a>
+        </div>
+      </div>
+      <div class="login-form-OES">
+        <div class="header-form">
+          <span>Вход:</span>
+          <img src="{% static 'dashboard/img/mf_logo_blue_small.png' %}" alt="logo MicroFocus">
+        </div>
+
+        <form class="main-form" data-auth="ldapAuthentication" action="/login" method="post">
+          <input class="txt" type="text" name="username" value="" placeholder="Имя" autocomplete="off" required>
+          <input class="txt" type="password" name="password" value="" placeholder="Пароль" autocomplete="off" required>
+          <div class="btn-block">
+            <input type="text" id="userContext" value="" placeholder="Контекст" autocomplete="off" required>
+            <button type="button" id="menu-contexts">
+              <i data-feather="menu"></i>
+            </button>
+          </div>
+          <input type="submit" class="btn btn-primary" value="Войти">
+        </form>
+
+        <div class="footer-form">
+          <p>или</p>
+          <a href="javascript:void(0);" id="display-simple-form">обычный вход</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-contexts-menu">
+    <div class="form-group">
+      <ul id="treeContexts" class="ztree">
+      </ul>
+    </div>
+    <i data-feather="x-circle" class="action" id="close-modal-contexts"></i>
+    <i data-feather="check-circle" class="action" id="apply-modal-contexts"></i>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script src="{% static 'dashboard/js/4l.min.js' %}"></script>
+{% endblock %}

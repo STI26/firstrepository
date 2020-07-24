@@ -5,6 +5,7 @@ class Departments(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
     short_name = models.TextField()
+    department_dn = models.TextField(blank=True, default='')
 
     def __str__(self):
         return self.name
@@ -25,6 +26,17 @@ class Employees(models.Model):
 
     class Meta:
         verbose_name = "Employee"
+
+
+class Technical_groups(models.Model):
+    employee = models.ForeignKey(Employees, on_delete=models.CASCADE)
+    group_dn = models.TextField()
+
+    def __str__(self):
+        return f'{self.employee}({self.group_dn})'
+
+    class Meta:
+        verbose_name = "Technical_group"
 
 
 class Buildings(models.Model):

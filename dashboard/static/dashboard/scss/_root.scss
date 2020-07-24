@@ -1,0 +1,428 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,300&display=swap');
+
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+* {
+  box-sizing: border-box;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+// end reset
+html,
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: $base-size;
+}
+.conteiner {
+	display: block;
+	width: 100%;
+	font-size: $nav-size;
+
+  .main {
+    display: grid;
+    width: 100%;
+    height: auto;
+  }
+}
+// general styles
+.w-100 {
+	width: 100%;
+}
+.w-0 {
+	width: 0%;
+}
+.flex-0 {
+	flex: 0;
+}
+.flex-1 {
+	flex: 1;
+}
+.flex-2 {
+	flex: 2;
+}
+.flex-3 {
+	flex: 3;
+}
+.flex-4 {
+	flex: 4;
+}
+.flex-5 {
+	flex: 5;
+}
+// Icons
+svg {
+  vertical-align: middle;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+
+	&.svg-title {
+		vertical-align: text-bottom;
+		height: $icon-size;
+		width: $icon-size;
+	}
+
+	&.feather-user {
+		border-radius: 50%;
+		// border: 2px solid $color-dark-20;
+	}
+
+	&.action {
+		vertical-align: text-bottom;
+		height: $icon-size;
+		width: $icon-size;
+		cursor: pointer;
+
+		&:hover {
+			color: $icon-color-defaulf;
+		}
+
+		&.feather-x-circle {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+
+			&:hover {
+				color: $icon-color-close;
+			}
+		}
+
+		&.feather-check-circle {
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+
+			&:hover {
+				color: $icon-color-apply;
+			}
+		}
+	}
+}
+// SVG-icon for mobile version. Description for tablet or more version.
+.show-tooltip {
+	.svg-title {
+		display: initial;
+	}
+
+	&::before {
+		content: "";
+	}
+}
+@include tablet {
+  .show-tooltip {
+    .svg-title {
+      display: none;
+    }
+
+    &::before {
+      content: attr(tooltip);
+    }
+  }
+}
+// Switch button
+// <input type="checkbox" class="switch">
+input[type="checkbox"] {
+	-moz-appearance:initial; // Hack for Firefox Browsers
+
+	&.switch {
+		height: 14px;
+		width: 24px;
+		position: relative;
+		display: inline-block;
+		vertical-align: text-bottom;
+		cursor: pointer;
+
+		&::before {
+			position: absolute;
+			background-color: $btn-color-default;
+			font-size: $table-size2;
+			font-weight: bold;
+			content: "";
+			color: $white;
+			text-align: left;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			height: 14px;
+			width: 24px;
+			border-radius: 14px;
+			@include transition(.3s ease-in-out);
+		}
+
+		&::after {
+			position: absolute;
+			content: "";
+			background-color: $white;
+			height: 10px;
+			left: 2px;
+			top: 2px;
+			width: 10px;
+			border-radius: 50%;
+			@include transition(.3s ease-in-out);
+		}
+
+		&:checked::before {
+			content: "\00a0\2713";
+			background-color: $input-color-active;
+		}
+
+		&:checked::after {
+			@include transform(translateX(10px));
+		}
+
+		&:focus::before {
+			box-shadow: $input-focus-shadow;
+		}
+
+		& + label {
+			font-size: $low-size;
+		}
+	}
+}
+// Pagination
+.pagination {
+	display: flex;
+	flex-direction: row;
+
+	a, span {
+		height: 100%;
+		width: 100%;
+		text-decoration: none;
+		font-size: $low-size;
+		color: $black;
+		height: 1.875rem;
+		line-height: 1.875rem;
+		width: 1.563rem;
+		margin: 0 2px;
+		text-align: center;
+		border-radius: $btn-border-radius;
+		background-color: $color-light-20;
+		border: 1px solid $btn-color-default-50;
+		float: left;
+		@include transition(.3s ease-in-out);
+
+		&:hover:not(.active) {
+			background-color: $btn-color-default-50;
+		}
+
+		&.active {
+			background-color: $accent-color;
+		}
+	}
+}
+// Style 'input', 'button'
+.btn, .txt  {
+	height: $btn-height;
+	width: auto;
+	font-size: $base-size;
+	border: $btn-border;
+	border-radius: $btn-border-radius;
+	margin: .313rem 0;
+	padding-left: .625rem;
+	&.size-s {
+		height: $btn-height-s;
+		font-size: $base-size;
+	}
+	&:focus {
+		outline: none;
+		// box-shadow: $form-shadow;
+		box-shadow: $input-focus-shadow;
+	}
+}
+.btn, button {
+	cursor: pointer;
+}
+.btn {
+	color: $white;
+	@include transition($btn-transition);
+
+	&.btn-primary {
+		background-color: $btn-color-primary;
+		&:hover {
+			background-color: $btn-color-primary-hover;
+		}
+		&.active {
+			color: $input-color-active;
+			background-color: $btn-color-active;
+		}
+	}
+	&.btn-secondary {
+		background-color: $btn-color-secondary;
+		&:hover {
+			background-color: $btn-color-secondary-hover;
+		}
+		&.active {
+			color: $input-color-active;
+			background-color: $btn-color-active;
+		}
+	}
+	&.btn-light {
+		color: $color-dark;
+		background-color: $color-light;
+		&:hover {
+			background-color: $color-light-70;
+		}
+		&.active {
+			color: $input-color-active;
+			background-color: $btn-color-active;
+		}
+	}
+}
+.btn-block {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	height: $btn-height;
+	margin: .313rem 0;
+	&.size-s {
+		height: $btn-height-s;
+		font-size: $base-size;
+	}
+
+	input, select, button {
+		background-color: $white;
+		border: $btn-border;
+		font-size: $base-size;
+		&:focus {
+			outline: none;
+			box-shadow: $input-focus-shadow;
+		}
+
+		&:first-child {
+			border-right: 0;
+			border-top-left-radius: $btn-border-radius;
+			border-bottom-left-radius: $btn-border-radius;
+			padding-left: .625rem;
+			flex: 1;
+			min-width: 0;
+		}
+
+		&:last-child {
+			border-top-right-radius: $btn-border-radius;
+			border-bottom-right-radius: $btn-border-radius;
+			color: $color-dark-70;
+			@include transition($btn-transition);
+		}
+	}
+
+	button:hover {
+		background-color: $color-dark-20;
+	}
+}
+.is-showing {
+	display: block!important;
+}
+// Dropdown
+.dropdown {
+	// overflow: hidden;
+
+	&.responsive {
+		float: none;
+
+		.dropdown-btn {
+			width: 100%;
+		}
+
+		.dropdown-menu {
+			position: relative;
+		}
+	}
+
+	.dropdown-btn {
+		font-size: $base-size;
+    font-weight: normal;
+
+    svg {
+      vertical-align: bottom;
+    }
+	}
+
+	.dropdown-menu {
+		display: none;
+		position: absolute;
+		box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+		.dropdown-divider{
+			height: 1px;
+			margin: 0 .313rem;
+			text-align: center;
+			background-color: $black;
+		}
+
+		a {
+			display: block;
+			background-color: $white;
+			font-size: $low-size;
+			text-decoration: none;
+			text-align: left;
+	    color: $color-dark;
+	    padding: .313rem .625rem;
+	    transition: all .5s;
+
+	    &:hover {
+	      background-color: $btn-color-default;
+	    }
+		}
+	}
+}
+// Dropdown: responsive
+@include tablet {
+	.dropdown {
+		&.responsive {
+			float: initial!important;
+
+			.dropdown-btn {
+				width: auto!important;
+			}
+
+			.dropdown-menu {
+				position: absolute!important;
+			}
+		}
+	}
+}

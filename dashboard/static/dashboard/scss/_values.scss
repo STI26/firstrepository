@@ -1,0 +1,45 @@
+$white: #FFFFFF;
+$black: #000000;
+$color-light: #DDEDF4;
+$color-light-20: rgba(#dcecf4, .2);
+$color-light-70: rgba(#dcecf4, .7);
+$color-dark: #212221;
+$color-dark-20: rgba(#212221, .2);
+$color-dark-70: rgba(#212221, .7);
+$accent-color: #E4BF3F;
+$btn-color-primary: #007BFF; //#1181B2
+$btn-color-secondary: #6c757d;
+$btn-color-primary-hover: #0069D9;
+$btn-color-secondary-hover: #565d63;
+$btn-color-active: rgba(#000000, .1);
+$btn-color-default: #cccccc;
+$btn-color-default-50: rgba(#cccccc, .5);
+$input-color-active: #44449c;
+$input-color-focus: rgba(#44449c, .7);
+$icon-color-defaulf: rgb(5, 5, 255);
+$icon-color-apply: rgb(5, 255, 5);
+$icon-color-close: rgb(255, 5, 5);
+$bg-modal: rgba(0,0,0,.4);
+
+$input-focus-shadow: 0 0 0 .15rem rgba(#007bff, .25);
+$form-shadow: 5px 5px 15px $color-dark-20;
+
+$base-size: 16px;           // if base 16px
+$nav-size: 1.5rem;          // 24px
+$large-size: 1.25rem;       // 20px
+$icon-size: 1.25rem;        // 20px
+$low-size: .875rem;         // 14px
+$table-size2: .625rem;      // 10px
+
+$btn-border-radius: 4px;
+$modal-border-radius: 4px;
+
+$table-border: 1px solid $color-dark;
+$btn-border: 1px solid $color-dark-20;
+
+$btn-height: 2.375rem;
+$btn-height-s: 1.75rem;
+
+$btn-transition: .15s ease-in-out;
+
+$open-modal: all .4s;

@@ -1,6 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 
+@login_required()
 def repairs(request):
-    return HttpResponse("the repairs page.")
+
+    return render(request, 'repairs/repairs.html')

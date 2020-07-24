@@ -1,0 +1,54 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <!-- Required meta tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>БТО:{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'dashboard/css/main.min.css' %}" type="text/css">
+  <!-- <script src="https://unpkg.com/feather-icons"></script> -->
+  <script src="{% static 'dashboard/js/feather.min.js' %}"></script>
+  <!-- https://www.jqueryscript.net/layout/Powerful-Multi-Functional-jQuery-Folder-Tree-Plugin-zTree.html -->
+  <link rel="stylesheet" href="{% static 'dashboard/css/zTreeStyle.css' %}" type="text/css">
+  <!-- https://github.com/flatpickr/flatpickr -->
+  <link rel="stylesheet" href="{% static 'dashboard/css/flatpickr.min.css' %}" type="text/css">
+  <script src="{% static 'dashboard/js/flatpickr.js' %}"></script>
+  <script src="{% static 'dashboard/js/flatpickr.ru.js' %}"></script>
+  <link rel="icon" type="image/x-icon" href="{% static 'dashboard/img/logo.ico' %}">
+  <link rel="icon" type="image/png" href="{% static 'dashboard/img/logo16.png' %}" sizes="16x16">
+  <link rel="icon" type="image/png" href="{% static 'dashboard/img/logo32.png' %}" sizes="32x32">
+  <link rel="icon" type="image/png" href="{% static 'dashboard/img/logo96.png' %}" sizes="96x96">
+  <link rel="icon" type="image/png" href="{% static 'dashboard/img/logo192.png' %}" sizes="192x192">
+</head>
+
+<body>
+
+  <header>
+    {% if user.is_authenticated %}
+      {% include "dashboard/includes/_navbar.html" %}
+    {% endif %}
+  </header>
+
+  <main class="conteiner">
+    {% block main %}{% endblock %}
+  </main>
+
+  <footer>
+  {% block footer %}{% endblock %}
+  </footer>
+  <!-- </div> -->
+
+  <!-- TODO: jQuery need for ztree (rework tree view) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <!-- https://www.jqueryscript.net/layout/Powerful-Multi-Functional-jQuery-Folder-Tree-Plugin-zTree.html -->
+  <script type="text/javascript" src="{% static 'dashboard/js/jquery.ztree.core.min.js' %}"></script>
+  <script src="{% static 'dashboard/js/main.min.js' %}"></script>
+
+  {% block js %}{% endblock %}
+
+</body>
+
+</html>

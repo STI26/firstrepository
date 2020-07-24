@@ -1,0 +1,104 @@
+.modal {
+  display: none;
+  position: fixed;
+  opacity: 0;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  padding: 0 2rem;
+  background-color: $bg-modal;
+  @include transition(opacity .2s linear);
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-width: 41.875rem;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: $modal-border-radius;
+    background-color: $white;
+    font-size: $base-size;
+    @include transition(transform .3s ease-out);
+    @include transform(translate(0,-15%));
+
+    .modal-header {
+      display: flex;
+      flex-flow: row wrap;
+      padding: 1rem;
+      border-bottom: 1px solid #cccccc;
+      font-size: $nav-size;
+    }
+    .modal-body {
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: space-between;
+      padding: 1rem 1rem 0 1rem;
+      h6 {
+        font-weight: bold;
+        margin-bottom: 1rem;
+      }
+      .modal-row {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        .modal-item {
+          display: flex;
+          flex-direction: column;
+          margin: .313rem;
+          min-width: 9.25rem
+        }
+      }
+    }
+    .modal-footer {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: space-between;
+      padding: 1rem;
+      border-top: 1px solid #cccccc;
+    }
+  }
+}
+.modal-auxiliary {
+  z-index: 20;
+}
+.open-modal {
+  opacity: 1;
+  .modal-content {
+    @include transform(translate(0,0));
+  }
+}
+.btn-x {
+  &:hover {
+    color: $icon-color-close!important;
+  }
+}
+#modal-department-add,
+#modal-employee-add,
+#modal-equipment-type-add,
+#modal-equipment-name-add,
+#modal-location-add,
+#modal-building-add,
+#modal-user-add {
+  display: none;
+}
+
+// Mobile version
+@include mobile {
+  .modal-row {
+    flex-direction: row!important;
+    flex-wrap: wrap!important;
+  }
+}
+// Tablet version
+@include tablet {
+  .modal-row {
+    // flex-wrap: nowrap!important;
+  }
+}
