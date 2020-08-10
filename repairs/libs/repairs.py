@@ -72,7 +72,6 @@ class Repairs(object):
     def get_new_id(self):
         """Get a new ID and auxiliary lists for a new form"""
 
-
         return JsonResponse(row)
 
     def change_department(self, data=None):

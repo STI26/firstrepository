@@ -1,0 +1,104 @@
+.login-form {
+  height: 21.875rem;
+  width: 15.625rem;
+  margin-top: 2.5rem;
+  margin-left: calc(50% - 7.8125rem);
+  perspective: 1000px;
+
+  .login-form-inner {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    box-shadow: $form-shadow;
+    @include transition(transform 0.8s);
+    @include transform-style(preserve-3d);
+
+    .login-form-simple, .login-form-OES {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding-bottom: .313rem;
+      transform-style: preserve-3d;
+      -webkit-backface-visibility: hidden; /* Safari */
+      backface-visibility: hidden;
+
+      .header-form {
+        display: flex;
+        flex-direction: row;
+        height: 2.813rem;
+        margin: 0 .313rem;
+        border-bottom: 1px solid $color-dark-70;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: .5rem;
+
+        img {
+          height: 1.063rem;
+          width: 4.375rem;
+        }
+      }
+
+      .main-form {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem 1.5rem;
+        justify-content: space-between;
+        align-items: stretch;
+
+        input:last-child {
+          margin-top: 1.25rem;
+        }
+      }
+
+      .footer-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 2.813rem;
+        margin: 0 .313rem;
+        border-top: 1px solid $color-dark-70;
+        padding: .5rem;
+        font-size: $low-size;
+        line-height: 1.2;
+      }
+    }
+
+    .login-form-simple {
+      @include transform(rotateY(180deg));
+    }
+  }
+}
+
+.rotate180 {
+  @include transform(rotateY(180deg));
+}
+.modal-contexts-menu {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  height: 19.063rem;
+  width: 15.625rem;
+  margin-top: 0;
+  top: 5.313rem;
+  left: calc(50% - 7.8125rem);
+  z-index: 2;
+  background-color: $color-light;
+  @include transition($open-modal);
+  &.open-modal {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .form-group {
+    position: relative;
+    height: 18.438rem;
+    width: 12rem;
+    margin: .313rem 0 0 .313rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: $white;
+  }
+}

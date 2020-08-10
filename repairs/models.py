@@ -5,7 +5,7 @@ class Departments(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
     short_name = models.TextField()
-    department_dn = models.TextField(blank=True, default='')
+    department_dn = models.TextField(blank=True, default='', unique=True)
 
     def __str__(self):
         return self.name
@@ -16,6 +16,7 @@ class Departments(models.Model):
 
 class Employees(models.Model):
     is_deleted = models.BooleanField(default=False)
+    personal_number = models.IntegerField(default=0, unique=True)
     l_name = models.TextField()
     f_name = models.TextField(blank=True)
     patronymic = models.TextField(blank=True)
@@ -29,7 +30,7 @@ class Employees(models.Model):
 
 
 class Technical_groups(models.Model):
-    employee = models.ForeignKey(Employees, on_delete=models.CASCADE)
+    employee = models.ManyToManyField(Employees)
     group_dn = models.TextField()
 
     def __str__(self):

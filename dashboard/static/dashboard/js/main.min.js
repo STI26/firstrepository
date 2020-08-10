@@ -1,24 +1,3 @@
-/* Setting for tree view. https://www.jqueryscript.net/layout/Powerful-Multi-Functional-jQuery-Folder-Tree-Plugin-zTree.html*/
-const setting = {
-  data: {
-    simpleData: {
-      enable: false
-    }
-  },
-  async: {
-    enable: true,
-    url: '/login',
-    type: 'post',
-    contentType: 'application/x-www-form-urlencoded',
-    dataType: 'text',
-    headers: {
-      'operation': 'loadTree'
-    },
-    xhrFields: {
-      withCredentials: true
-    },
-  },
-};
 // Setting for flatpickr
 const cfgFlatpickr = {
   enableTime: true,
@@ -41,7 +20,7 @@ function docReady(fn) {
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function(event) {
   if (!event.target.closest('.dropdown-btn')) {
-    const dropdowns = document.getElementsByClassName("dropdown-menu");
+    const dropdowns = document.querySelectorAll('.dropdown-menu');
     for (let i = 0; i < dropdowns.length; i++) {
       if (dropdowns[i].classList.contains('is-showing')) {
         dropdowns[i].classList.remove('is-showing');
@@ -281,13 +260,43 @@ const modalDisplay = (id) => {
     }
   });
 };
+/* Show error block */
+const infoBlock = (type, message) => {
+  // css style type: error, success, info
+  const fr = new DocumentFragment();
+  const span = document.createElement('span');
+  span.innerHTML = 'x';
+  span.addEventListener('click', (e) => {
+    e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+  });
+  const li = document.createElement('li');
+  li.classList.add('flash', `flash-${type}`);
+  li.innerHTML = message;
+  li.appendChild(span);
+  const ib = document.querySelector('#info-block');
+  if (document.contains(ib)) {
+    fr.appendChild(li);
+    ib.appendChild(fr);
+  } else {
+    const ul = document.createElement('ul');
+    ul.id = 'info-block';
+    ul.appendChild(li);
+    fr.appendChild(ul);
+    const theFirstChild = document.querySelector('main.conteiner').firstChild;
+    document.querySelector('main.conteiner').insertBefore(fr, theFirstChild);
+  }
+  this.clear = () => {
+    document.querySelector('#info-block').innerHTML = '';
+  };
+  return this;
+};
 // Methods for modal object
 const modal = {
   modals: document.querySelectorAll('.modal'),
   initial: function() {
     this.modals.forEach((item) => {
       let dataTarget = item.getAttribute('id');
-      item.querySelectorAll('[data-target=' + dataTarget + ']').forEach((modal) => {
+      item.querySelectorAll(`[data-target=${dataTarget}]`).forEach((modal) => {
         modal.addEventListener('click', () => {
           item.classList.remove('open-modal');
           setTimeout(() => {item.style.display = 'none';}, 400);
@@ -319,7 +328,7 @@ docReady(function() {
   document.querySelectorAll('.dropdown-btn').forEach((item, i) => {
     let dataTarget = item.getAttribute('id');
     item.addEventListener('click', () => {
-      document.querySelector('[data-target=' + dataTarget + ']').classList.toggle('is-showing');
+      document.querySelector(`[data-target=${dataTarget}]`).classList.toggle('is-showing');
     });
   });
 

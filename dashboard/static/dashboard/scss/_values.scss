@@ -1,5 +1,14 @@
 $white: #FFFFFF;
 $black: #000000;
+$alert-bg-error: #f8d7da;
+$alert-border-error: #f5c6cb;
+$alert-color-error: #721c24;
+$alert-bg-success: #d4edda;
+$alert-border-success: #c3e6cb;
+$alert-color-success: #155724;
+$alert-bg-info: #cce5ff;
+$alert-border-info: #b8daff;
+$alert-color-info: #004085;
 $color-light: #DDEDF4;
 $color-light-20: rgba(#dcecf4, .2);
 $color-light-70: rgba(#dcecf4, .7);
@@ -36,6 +45,7 @@ $modal-border-radius: 4px;
 
 $table-border: 1px solid $color-dark;
 $btn-border: 1px solid $color-dark-20;
+$alert-border: 1px solid transparent;
 
 $btn-height: 2.375rem;
 $btn-height-s: 1.75rem;

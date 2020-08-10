@@ -26,7 +26,7 @@
     <!-- Nav Item - User Information -->
     <li class="nav-item dropdown responsive">
       <a href="javascript:void(0);" class="dropdown-btn" id="user-menu">
-        <span id="username">{{ session.username }}</span>
+        <span id="username">{{ user.get_full_name }}</span>
         <i data-feather="user"></i>
       </a>
       <!-- Dropdown - User Information -->
@@ -44,7 +44,7 @@
           База данных
         </a>
         <div class="dropdown-divider"></div>
-        <a href="{% url 'admin:logout' %}">
+        <a href="{% url 'logout_view' %}">
           <i data-feather="log-out"></i>
           Выход
         </a>

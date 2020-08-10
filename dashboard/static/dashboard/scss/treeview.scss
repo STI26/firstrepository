@@ -1,0 +1,42 @@
+$bg-color: #ddedf4;
+.t-node {
+  padding-inline-start: 1rem;
+  display: none;
+}
+.t-item, .t-item-empty {
+  font-size: 1rem;
+  padding: 1px;
+  &::before {
+    cursor: pointer;
+    content: "\00b7";
+    color: black;
+    display: inline-block;
+    margin-right: .3rem;
+  }
+  span {
+    width: auto;
+    user-select: none;
+    cursor: pointer;
+  }
+  &>span:hover {
+    color: blue;
+    background-color: $bg-color;
+  }
+}
+.t-item {
+  &::before {
+    content: "+";
+  }
+}
+.t-item--show {
+  &::before {
+    content: "-";
+  }
+  &>ul {
+    display: block;
+  }
+}
+.t-item--selected {
+  color: blue;
+  background-color: $bg-color;
+}

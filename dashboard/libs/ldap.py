@@ -4,8 +4,8 @@ from decouple import config
 LDAP_HOST = config('LDAP_HOST')
 
 
-class CheckContext(object):
-    """docstring for CheckContext."""
+class LDAPContext(object):
+    """docstring for LDAPContext."""
 
     def __init__(self):
         """Connect to an host
@@ -13,7 +13,7 @@ class CheckContext(object):
         Anonymous authentication is used
         """
 
-        super(CheckContext, self).__init__()
+        super(LDAPContext, self).__init__()
         self._server = Server(LDAP_HOST, use_ssl=True)
 
         # Authentication anonymous
@@ -70,7 +70,7 @@ class CheckContext(object):
 
         return listDN
 
-    def _checkDN(self, dn, tree):
+    def _getDN(self, dn, tree):
         """Check name in list of dict"""
 
         # Search dn in tree
@@ -80,7 +80,7 @@ class CheckContext(object):
                 # Return position x in tree
                 return tree.index(x)
 
-        return False
+        return None
 
     def _formTree(self, response):
         """Convert strings Distinguished Names to tree
@@ -100,9 +100,9 @@ class CheckContext(object):
 
             for x in r:
                 # Check if there is a dict with name x['name'] in the list
-                currentDict = self._checkDN(x['name'], tmp)
+                currentDict = self._getDN(x['name'], tmp)
 
-                if currentDict is False:
+                if currentDict is None:
                     description = item['attributes'].setdefault(
                                       'description',
                                       ''
@@ -117,7 +117,9 @@ class CheckContext(object):
 
                 # Set new link to a list
                 tmp = tmp[currentDict].get('children')
+                tmp.sort(key=(lambda a: a['name']))
 
+        tmp.sort(key=(lambda a: a['name']))
         return result
 
     def getContexts(self, attr=[]):
@@ -164,10 +166,10 @@ class CheckContext(object):
 
         for x in range(len(listCont)):
             # Check if there is a dict with name 'context' in the list
-            pos = self._checkDN(listCont[x], tmpTree)
+            pos = self._getDN(listCont[x], tmpTree)
 
             # Context not found
-            if pos is False:
+            if pos is None:
                 return False
 
             # Get RDN
@@ -188,21 +190,28 @@ class CheckContext(object):
 class Ldap(object):
     """docstring for Ldap."""
 
-    def __init__(self, userName, context, password):
+    def __init__(self, username, password, context=None):
         """Connect to an host
         use context format: 'organizationalUnitName.organizationName'
 
         Simple authentication is used
         """
 
+        if not context:
+            try:
+                username, context = username.split('.', 1)
+            except ValueError as e:
+                raise e
+
         super(Ldap, self).__init__()
         self._server = Server(LDAP_HOST, use_ssl=True)
 
         # Authentication simple
-        with CheckContext() as cont:
+        with LDAPContext() as cont:
             self._context = cont.getContextDN(context)
-        self._userName = userName
-        self._userDN = f'cn={self._userName},{self._context}'
+        self._usernameID = f'{username}.{context}'
+        self._username = username
+        self._userDN = f'cn={self._username},{self._context}'
         self._connection = Connection(self._server,
                                       user=self._userDN,
                                       password=password,
@@ -247,7 +256,7 @@ class Ldap(object):
         # Search contexts
         ret = self.connection.search(
             search_base=self._context,
-            search_filter=f'(cn={self._userName})',
+            search_filter=f'(cn={self._username})',
             search_scope=LEVEL,
             attributes=['securityEquals'])
 
@@ -286,6 +295,7 @@ class Ldap(object):
     def getUserInfo(self, userId=None):
         """Get user info
 
+        return dict
         If more then one user returns 'False'
         """
 
@@ -295,7 +305,7 @@ class Ldap(object):
             scope = SUBTREE
         else:
             base = self._context
-            filter = f'(cn={self._userName})'
+            filter = f'(cn={self._username})'
             scope = LEVEL
 
         ret = self.connection.search(
@@ -338,12 +348,13 @@ class Ldap(object):
         return {'firstName': firstName,
                 'lastName': lastName,
                 'patronymic': patronymic,
-                'id': info[0]['attributes']['generationQualifier'],
+                'personalNumber': info[0]['attributes']['generationQualifier'],
+                'username': self._usernameID,
                 'department': info[0]['attributes']['ou'][0],
                 'departmentDN': self._context,
                 'departmentDescription': description,
                 'location': info[0]['attributes']['l'][0],
-                'mail': info[0]['attributes']['mail'][0]}
+                'email': info[0]['attributes']['mail'][0]}
 
     def _getDepartmentName(self):
         """Get user info

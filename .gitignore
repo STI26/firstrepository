@@ -8,6 +8,7 @@ __pycache__/
 
 # css
 *.css
+*.css.map
 
 # Distribution / packaging
 .Python

@@ -71,6 +71,13 @@ TEMPLATES = [
     },
 ]
 
+# Set up authentication backends
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'dashboard.libs.authentication.LDAPBackend',
+]
+
 WSGI_APPLICATION = 'tdjournal.wsgi.application'
 
 
@@ -128,3 +135,43 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 LOGIN_URL = '/login/'
+
+# Logging
+# https://docs.djangoproject.com/en/3.0/topics/logging/
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
+
+# Login redirect
+
+LOGIN_REDIRECT_URL = '/'
+
+# Logout redirect
+
+LOGOUT_REDIRECT_URL = 'login_view'
+
+# Dummy caching (for development)
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
