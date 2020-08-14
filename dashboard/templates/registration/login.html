@@ -37,7 +37,7 @@
           <input class="txt" type="password" name="password" value="" placeholder="Пароль" autocomplete="off" required>
           <div class="btn-block">
             <input type="text" name="context" value="" placeholder="Контекст" autocomplete="off" required>
-            <button type="button" id="menu-contexts">
+            <button type="button" id="menu-contexts" data-fetch="{% url 'contexts' %}">
               <i data-feather="menu"></i>
             </button>
           </div>

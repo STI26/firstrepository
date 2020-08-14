@@ -1,7 +1,13 @@
 {% extends "dashboard/layout.html" %}
+{% load static %}
 
 {% block title %}
 Ремонты
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'repairs/css/4r.min.css' %}" type="text/css">
+<script src="{% static 'repairs/js/4r.min.js' %}" defer></script>
 {% endblock %}
 
 {% block main %}
@@ -38,7 +44,8 @@
     </div>
     <!-- /filter -->
     <!-- table -->
-    <ol class="table-conteiner table-repairs">
+    {%  csrf_token %}
+    <ol class="table-conteiner table-repairs" data-fetch="{% url 'repairs' %}">
       <li class="item item-conteiner">
         <div class="attribute">#</div>
         <div class="attribute-conteiner input-info">
@@ -101,15 +108,23 @@
       {% endfor%}
     </ol>
     <!-- /table -->
+    <!-- pagination -->
+    <div class="pagination-block">
+      <div class="pagination"></div>
 
+      <select id="rows-per-page">
+        <option value="10"{% if rowsPerPage == 10 %} selected{% endif %}>10</option>
+        <option value="20"{% if rowsPerPage == 20 %} selected{% endif %}>20</option>
+        <option value="35"{% if rowsPerPage == 35 %} selected{% endif %}>35</option>
+        <option value="50"{% if rowsPerPage == 50 %} selected{% endif %}>50</option>
+        <option value="0"{% if rowsPerPage == 0 %} selected{% endif %}>все</option>
+      </select>
+    </div>
+    <!-- /pagination -->
 
   </div>
   <!-- /main block -->
 
-  {% include "includes/_modal.html" %}
-  {% include "includes/_auxiliary_modal.html" %}
-{% endblock %}
-
-{% block js %}
-  <script src="../static/js/4r.min.js"></script>
+  {% include "repairs/includes/_modal.html" %}
+  {% include "repairs/includes/_auxiliary_modal.html" %}
 {% endblock %}

@@ -28,6 +28,24 @@ window.onclick = function(event) {
     }
   }
 }
+/* Fetch */
+async function postData(url='', data={}, operation='') {
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  // Send the data using post
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'same-origin',
+    headers: {
+      'X-CSRFToken': csrftoken,
+      'Content-Type': 'application/json',
+      'operation': operation,
+    },
+    body: JSON.stringify(data),
+  })
+  return response.json();
+}
 /* Show pagination block */
 const showPagination = (page, numberRows, rowsPerPage, halfPaginationLength) => {
   document.querySelector('.pagination').innerHTML = '';

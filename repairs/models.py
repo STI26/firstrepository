@@ -5,10 +5,10 @@ class Departments(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
     short_name = models.TextField()
-    department_dn = models.TextField(blank=True, default='', unique=True)
+    department_dn = models.TextField(unique=True)
 
     def __str__(self):
-        return self.name
+        return self.short_name
 
     class Meta:
         verbose_name = "Department"
@@ -23,7 +23,11 @@ class Employees(models.Model):
     department = models.ForeignKey(Departments, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.l_name} {self.f_name}({self.department})'
+        return '{}{}{}'.format(
+            self.l_name,
+            f' {self.f_name[0]}.' if self.f_name else '',
+            f'{self.patronymic[0]}.' if self.patronymic else '',
+        )
 
     class Meta:
         verbose_name = "Employee"
@@ -60,7 +64,7 @@ class Locations(models.Model):
     building = models.ForeignKey(Buildings, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.office}; {self.department}; {self.building}'
+        return f'{self.office} ({self.department})'
 
     class Meta:
         verbose_name = "Location"
@@ -72,7 +76,7 @@ class Brands(models.Model):
     short_name = models.TextField()
 
     def __str__(self):
-        return self.name
+        return self.short_name
 
     class Meta:
         verbose_name = "Brand"
@@ -97,7 +101,7 @@ class Equipment(models.Model):
     model = models.TextField()
 
     def __str__(self):
-        return f'{self.type}; {self.brand}; {self.model}'
+        return f'{self.type} ({self.brand} {self.model})'
 
     class Meta:
         verbose_name = "Equipment"
@@ -108,10 +112,10 @@ class Repairs(models.Model):
     is_deleted = models.BooleanField(default=False)
     date_in = models.DateTimeField()
     department = models.ForeignKey(Departments, on_delete=models.CASCADE)
-    locations = models.ForeignKey(Locations, on_delete=models.CASCADE)
+    location = models.ForeignKey(Locations, on_delete=models.CASCADE)
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     defect = models.TextField()
-    inv_number = models.TextField()
+    inv_number = models.TextField(blank=True)
     customer_in = models.ForeignKey(
         Employees,
         on_delete=models.CASCADE,
@@ -122,12 +126,14 @@ class Repairs(models.Model):
         related_name='%(app_label)s_%(class)s_employee',)
     repair = models.TextField(blank=True)
     current_state = models.TextField(blank=True)
-    date_out = models.DateTimeField(null=True)
+    date_out = models.DateTimeField(null=True, default=None, blank=True)
     customer_out = models.ForeignKey(
         Employees,
         on_delete=models.CASCADE,
         related_name='%(app_label)s_%(class)s_customer_out',
-        null=True)
+        null=True,
+        blank=True,
+        default=None)
 
     def __str__(self):
         return f"""{self.date_in};

@@ -44,77 +44,68 @@ function loadRepairs(page=0) {
   let rowsPerPage = parseInt(document.querySelector('#rows-per-page').value);
   let obj = {
     number: (rowsPerPage === 0 ? null : rowsPerPage),
-    startNumber: page * rowsPerPage, //offset
+    currentPage: 1,
     activeRepairs: document.querySelector('#active-repairs').checked,
   };
 
-  // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'load_repairs');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      let data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: data could not be loaded.');
-      } else {
-        // Clear table
-        let table = document.querySelector('.table-conteiner');
-        let rows = document.querySelectorAll('.table-conteiner .item-conteiner');
-        rows.forEach((item, i) => {
-          if (i > 0) {
-            item.remove();
-          }
-        });
-        // Fill table
-        let fragment = new DocumentFragment();
-        data.repairs.forEach((item, i) => {
-          let row = rows[0].cloneNode(true);
-          row.querySelector('.attribute').innerText = item.id;
-          row.querySelector('.attribute.date-in').innerText = item.date_in;
-          row.querySelector('.attribute.customer-in').innerText = item.customer_id_in;
-          row.querySelector('.attribute.employee').innerText = item.employee_id;
-          row.querySelector('.attribute.department').innerText = item.department_id;
-          row.querySelector('.attribute.phone').innerText = item.phone;
-          row.querySelector('.attribute.equipment').innerText = item.equipment_id;
-          row.querySelector('.attribute.inv').innerText = item.inv_number;
-          row.querySelector('.attribute.defect').innerText = item.defect;
-          row.querySelector('.attribute.work').innerText = item.repair;
-          row.querySelector('.attribute.note').innerText = item.current_state;
-          row.querySelector('.attribute.customer-out').innerText = item.customer_id_out;
-          row.querySelector('.attribute.date-out').innerText = item.date_out;
+  const table = document.querySelector('.table-conteiner');
+  postData(table.dataset.fetch, obj, 'load_repairs')
+    .then(data => {
+      console.log(data);
+      // Clear table
+      const rows = document.querySelectorAll('.table-conteiner .item-conteiner');
+      rows.forEach((item, i) => {
+        if (i > 0) {
+          item.remove();
+        }
+      });
+      // Fill table
+      let fragment = new DocumentFragment();
+      data.repairs.data.forEach((item, i) => {
+        let row = rows[0].cloneNode(true);
+        row.querySelector('.attribute').innerText = item.id;
+        row.querySelector('.attribute.date-in').innerText = item.dateIn;
+        row.querySelector('.attribute.customer-in').innerText = item.customerIn;
+        row.querySelector('.attribute.employee').innerText = item.employee;
+        row.querySelector('.attribute.department').innerText = item.department;
+        row.querySelector('.attribute.phone').innerText = item.phone;
+        row.querySelector('.attribute.equipment').innerText = item.equipment;
+        row.querySelector('.attribute.inv').innerText = item.invNumber;
+        row.querySelector('.attribute.defect').innerText = item.defect;
+        row.querySelector('.attribute.work').innerText = item.repair;
+        row.querySelector('.attribute.note').innerText = item.currentState;
+        row.querySelector('.attribute.customer-out').innerText = item.customerOut;
+        row.querySelector('.attribute.date-out').innerText = item.dateOut;
 
-          row.querySelector('.attribute.date-in').title = item.date_in;
-          row.querySelector('.attribute.customer-in').title = item.customer_id_in;
-          row.querySelector('.attribute.employee').title = item.employee_id;
-          row.querySelector('.attribute.department').title = item.department_id;
-          row.querySelector('.attribute.phone').title = item.phone;
-          row.querySelector('.attribute.equipment').title = item.equipment_id;
-          row.querySelector('.attribute.inv').title = item.inv_number;
-          row.querySelector('.attribute.defect').title = item.defect;
-          row.querySelector('.attribute.work').title = item.repair;
-          row.querySelector('.attribute.note').title = item.current_state;
-          row.querySelector('.attribute.customer-out').title = item.customer_id_out;
-          row.querySelector('.attribute.date-out').title = item.date_out;
-          fragment.appendChild(row);
-        });
-        table.appendChild(fragment);
+        row.querySelector('.attribute.date-in').title = item.dateIn;
+        row.querySelector('.attribute.customer-in').title = item.customerIn;
+        row.querySelector('.attribute.employee').title = item.employee;
+        row.querySelector('.attribute.department').title = item.department;
+        row.querySelector('.attribute.phone').title = item.phone;
+        row.querySelector('.attribute.equipment').title = item.equipment;
+        row.querySelector('.attribute.inv').title = item.invNumber;
+        row.querySelector('.attribute.defect').title = item.defect;
+        row.querySelector('.attribute.work').title = item.repair;
+        row.querySelector('.attribute.note').title = item.currentState;
+        row.querySelector('.attribute.customer-out').title = item.customerOut;
+        row.querySelector('.attribute.date-out').title = item.dateOut;
+        fragment.appendChild(row);
+      });
+      table.appendChild(fragment);
 
-        showPagination(page, data.numberRows, rowsPerPage, 5)
-        document.querySelector('#db-time-update').innerText = data.time;
-      }
-    }
-  };
+      showPagination(page, data.numberRows, rowsPerPage, 5)
+      document.querySelector('#db-time-update').innerText = data.time;
+    })
+    .catch(error => {
+      infoBlock('error', error);
+    });
 }
 
 /* Update repairs table */
 function updateRepairs() {
   // TODO: ...
   let obj = {
-    time: document.querySelector('##db-time-update').innerText,
+    time: document.querySelector('#db-time-update').innerText,
   };
 
   // Send the data using post
@@ -577,6 +568,9 @@ docReady(function() {
   // Table: Details or short form (default short)
   repairsDetails(false);
 
+  // Load repairs
+  loadRepairs();
+
   // Flatpickr: Clear date
   document.querySelectorAll('.btn-x').forEach((item, i) => {
     let id = '#' + item.previousElementSibling.id;
@@ -587,7 +581,7 @@ docReady(function() {
 
   // Table: Show the current row in table
   document.getElementsByClassName('table-conteiner')[0].addEventListener('click', (e) => {
-    this.querySelectorAll('li.item-conteiner').forEach((item, i) => {
+    e.target.querySelectorAll('li.item-conteiner').forEach((item, i) => {
       if (item.classList.contains('table-active-row')) {
         item.classList.remove('table-active-row');
       }
