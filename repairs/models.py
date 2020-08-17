@@ -5,7 +5,7 @@ class Departments(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
     short_name = models.TextField()
-    department_dn = models.TextField(unique=True)
+    department_dn = models.TextField(blank=True)
 
     def __str__(self):
         return self.short_name
@@ -16,7 +16,7 @@ class Departments(models.Model):
 
 class Employees(models.Model):
     is_deleted = models.BooleanField(default=False)
-    personal_number = models.IntegerField(default=0, unique=True)
+    personal_number = models.IntegerField(default=0)
     l_name = models.TextField()
     f_name = models.TextField(blank=True)
     patronymic = models.TextField(blank=True)

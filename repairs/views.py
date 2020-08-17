@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from repairs.libs.repairs import DataRepairs
-from repairs.libs.importtable import i_repairs
+from repairs.libs.importtable import i_all
 import json
 
 
@@ -30,6 +30,6 @@ def repairs(request):
 
 def clondb(request):
 
-    data = i_repairs()
+    data = i_all()
 
     return JsonResponse(data, safe=False)

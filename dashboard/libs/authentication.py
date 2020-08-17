@@ -69,11 +69,11 @@ class LDAPBackend(ModelBackend):
 
         # Get department
         department, created = Departments.objects.get_or_create(
-            department_dn=info['departmentDN']
+            department_dn__iexact=info['departmentDN'],
+            short_name__iexact=info['department'],
         )
         if created:
             department.name = info['departmentDescription']
-            department.short_name = info['department']
             department.save()
 
         # Update employee
