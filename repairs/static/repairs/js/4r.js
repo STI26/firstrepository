@@ -1,20 +1,21 @@
 /* Table: details or short form */
 function repairsDetails(details=true) {
   let setShort = function() {
-    displayElementsByClassName('input-names', 'none');
-    displayElementsByClassName('phone', 'none');
-    displayElementsByClassName('inv', 'none');
-    displayElementsByClassName('customer-out', 'none');
-    document.getElementsByClassName('table-conteiner')[0].style.fontSize = '1rem';
+    displayElementsBySelector('.input-names', 'none');
+    displayElementsBySelector('.phone', 'none');
+    displayElementsBySelector('.inv', 'none');
+    displayElementsBySelector('.customer-out', 'none');
+    document.querySelector('.table-conteiner').style.fontSize = '1rem';
   };
   let setDetails = function() {
-    displayElementsByClassName('input-names', 'initial');
-    displayElementsByClassName('phone', 'initial');
-    displayElementsByClassName('inv', 'initial');
-    displayElementsByClassName('customer-out', 'initial');
-    document.getElementsByClassName('table-conteiner')[0].style.fontSize = '.625rem';
+    displayElementsBySelector('.input-names', 'initial');
+    displayElementsBySelector('.phone', 'initial');
+    displayElementsBySelector('.inv', 'initial');
+    displayElementsBySelector('.customer-out', 'initial');
+    document.querySelector('.table-conteiner').style.fontSize = '.625rem';
   };
   document.querySelector('#show-all-columns').addEventListener('click', function() {
+    defaultSettings.update();
     if (this.checked == true) {
       setDetails();
     } else {
@@ -31,27 +32,23 @@ function repairsDetails(details=true) {
 }
 
 /* Toggle column */
-function displayElementsByClassName(className, value) {
-  let el = document.getElementsByClassName(className);
-  for (let i = 0; i < el.length; i++) {
-    el[i].style.display = value;
-  }
+function displayElementsBySelector(className, value) {
+  document.querySelectorAll(className).forEach((item, i) => {
+    item.style.display = value;
+  });
 }
 
 /* Load repairs table */
-function loadRepairs(page=0) {
-  page = getNumberPage(page);
+function loadRepairs(page=1) {
   let rowsPerPage = parseInt(document.querySelector('#rows-per-page').value);
   let obj = {
-    number: (rowsPerPage === 0 ? null : rowsPerPage),
-    currentPage: 1,
+    number: rowsPerPage,
+    currentPage: page,
     activeRepairs: document.querySelector('#active-repairs').checked,
   };
-
   const table = document.querySelector('.table-conteiner');
   postData(table.dataset.fetch, obj, 'load_repairs')
     .then(data => {
-      console.log(data);
       // Clear table
       const rows = document.querySelectorAll('.table-conteiner .item-conteiner');
       rows.forEach((item, i) => {
@@ -61,7 +58,7 @@ function loadRepairs(page=0) {
       });
       // Fill table
       let fragment = new DocumentFragment();
-      data.repairs.data.forEach((item, i) => {
+      data.repairs.forEach((item, i) => {
         let row = rows[0].cloneNode(true);
         row.querySelector('.attribute').innerText = item.id;
         row.querySelector('.attribute.date-in').innerText = item.dateIn;
@@ -93,7 +90,7 @@ function loadRepairs(page=0) {
       });
       table.appendChild(fragment);
 
-      showPagination(page, data.numberRows, rowsPerPage, 5)
+      showPagination(page, data.paginator, 5)
       document.querySelector('#db-time-update').innerText = data.time;
     })
     .catch(error => {
@@ -101,179 +98,144 @@ function loadRepairs(page=0) {
     });
 }
 
-/* Update repairs table */
-function updateRepairs() {
-  // TODO: ...
-  let obj = {
-    time: document.querySelector('#db-time-update').innerText,
-  };
-
-  // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'update_repairs');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      let data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: data could not be loaded.');
-      } else {
-        console.log(data);
-
-      }
-    }
-  }
-}
-
 /* Save repair */
 function saveRepair() {
   let dateIn;
   let dateOut;
-  if (document.querySelector('#modal-date-in').value == '') {
-    dateIn = '';
-  }
-  else {
+  let customerOut;
+  if (document.querySelector('#modal-date-in').value === '') {
+    dateIn = null;
+  } else {
     dateIn = flatpickr.parseDate(document.querySelector('#modal-date-in').value, 'd.m.y H:i');
   }
-  if (document.querySelector('#modal-date-out').value == '') {
-    dateOut = '';
-  }
-  else {
+  if (document.querySelector('#modal-date-out').value === '') {
+    dateOut = null;
+  } else {
     dateOut = flatpickr.parseDate(document.querySelector('#modal-date-out').value, 'd.m.y H:i');
+  }
+  if (document.querySelector('#modal-customer-out').selectedIndex > 0) {
+    customerOut = document.querySelector('#modal-customer-out').value;
+  } else {
+    customerOut = null;
   }
   let obj = {
     date_in: dateIn,
-    department_id: document.querySelector('#modal-department').value,
-    location_id: document.querySelector('#modal-location').value,
-    equipment_id: document.querySelector('#modal-equipment-name').value,
+    location: document.querySelector('#modal-location').value,
+    equipment: document.querySelector('#modal-equipment-model').value,
     defect: document.querySelector('#modal-defect').value,
     inv_number: document.querySelector('#modal-inv').value,
-    customer_id_in: document.querySelector('#modal-customer-in').value,
-    employee_id: document.querySelector('#modal-employee').value,
+    customer_in: document.querySelector('#modal-customer-in').value,
+    employee: document.querySelector('#modal-employee').value,
     repair: document.querySelector('#modal-repair').value,
     current_state: document.querySelector('#modal-current-state').value,
     date_out: dateOut,
-    customer_id_out: document.querySelector('#modal-customer-out').value,
+    customer_out: customerOut,
   };
   let id = document.querySelector('#modal-id').innerText;
-  // If id temporary don't send it
+  // Detect temporary id
   if (id.search('\\*') < 0) {
     obj.id = id;
+  } else {
+    obj.id = -1;
   }
-
+  const url = document.querySelector('#modal-form').action;
   // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'save');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      let data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: data could not be loaded.');
-      } else if (data.status !== true) {
-        alert(`Error: ${data.message}`);
-      } else {
+  postData(url, obj, 'save')
+    .then(data => {
+      if (data.status === true) {
         modal.close('modal-current-row');
+        infoBlock('success', data.message, 2000);
         // Reload page
-        let page = document.querySelector('.pagination > a.active');
-        loadRepairs(page ? page.innerText - 1 : 0);
+        loadRepairs();
+      } else {
+        infoBlock('error', data.message);
       }
-    }
-  }
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
 }
 
 /* Open Repair */
 function openRepair(el) {
   // Get id table 'repairs'
-  const repairId = el.querySelector(':first-child').innerHTML;
   const obj = {
-    id: repairId,
+    id: el.querySelector(':first-child').innerHTML,
   };
-
+  const url = document.querySelector('#modal-form').action;
   // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'open');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      const data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: id(' + repairId + ') not found in database.');
+  postData(url, obj, 'open')
+    .then(data => {
+      // Modal show
+      modal.open('modal-current-row');
+      document.querySelector('#modal-id').innerHTML = data.repair.id;
+
+      const dateIn = flatpickr('#modal-date-in', cfgFlatpickr);
+      dateIn.setDate(new Date(data.repair.date_in));
+      const dateOut = flatpickr('#modal-date-out', cfgFlatpickr);
+      if (data.repair.date_out == null) {
+        dateOut.clear();
       } else {
-        // Modal show
-        modal.open('modal-current-row');
-        document.querySelector('#modal-id').innerHTML = data.id;
-
-        let dateIn = flatpickr('#modal-date-in', cfgFlatpickr);
-        let dateOut = flatpickr('#modal-date-out', cfgFlatpickr);
-        if (data.date_in == null || data.date_in == '') {
-          dateIn.clear();
-        } else {
-          dateIn.setDate(new Date(data.date_in));
-        }
-        if (data.date_out == null || data.date_out == '') {
-          dateOut.clear();
-        } else {
-          dateOut.setDate(new Date(data.date_out));
-        }
-        let departments = setOptions(data.departments_data, 'departments');
-        let locations = setOptions(data.locations_data, 'locations');
-        let buildings = setOptions(data.buildings_data, 'buildings');
-        let phone = data.locations_data.find(e => e.id === data.location_id).phone;
-        let equipmentType = setOptions(data.type_of_equipment_data, 'typeOfEquipment');
-        let equipmentName = setOptions(data.equipment_data, 'equipment');
-        let employees = setOptions(data.employees_data, 'names');
-        let customers = setOptions(data.customers_data, 'names');
-        document.querySelector('#modal-department').innerHTML = '';
-        document.querySelector('#modal-location').innerHTML = '';
-        document.querySelector('#modal-new-location-building').innerHTML = '';
-        document.querySelector('#modal-department-for-new-employee').innerHTML = '';
-        document.querySelector('#modal-department-for-new-location').innerHTML = '';
-        document.querySelector('#modal-equipment-type').innerHTML = '';
-        document.querySelector('#modal-new-equipment-type-id').innerHTML = '';
-        document.querySelector('#modal-equipment-name').innerHTML = '';
-        document.querySelector('#modal-customer-in').innerHTML = '';
-        document.querySelector('#modal-employee').innerHTML = '';
-        document.querySelector('#modal-customer-out').innerHTML = '';
-        document.querySelector('#modal-department').appendChild(departments.cloneNode(true));
-        document.querySelector('#modal-location').appendChild(locations);
-        document.querySelector('#modal-new-location-building').appendChild(buildings);
-        document.querySelector('#modal-department-for-new-employee').appendChild(departments.cloneNode(true));
-        document.querySelector('#modal-department-for-new-location').appendChild(departments);
-        document.querySelector('#modal-equipment-type').appendChild(equipmentType.cloneNode(true));
-        document.querySelector('#modal-new-equipment-type-id').appendChild(equipmentType);
-        document.querySelector('#modal-equipment-name').appendChild(equipmentName);
-        document.querySelector('#modal-customer-in').appendChild(customers.cloneNode(true));
-        document.querySelector('#modal-employee').appendChild(employees);
-        document.querySelector('#modal-customer-out').appendChild(customers);
-
-        document.querySelector('#modal-department').value = data.department_id;
-        document.querySelector('#modal-location').value = data.location_id;
-        document.querySelector('#modal-phone').value = phone;
-        document.querySelector('#modal-customer-in').value = data.customer_id_in;
-        document.querySelector('#modal-equipment-type').value = data.equipment_type_id;
-        document.querySelector('#modal-new-equipment-type-id').value = '';
-        document.querySelector('#modal-equipment-name').value = data.equipment_id;
-        document.querySelector('#modal-inv').value = data.inv_number;
-        document.querySelector('#modal-employee').value = data.employee_id;
-        document.querySelector('#modal-defect').value = data.defect;
-        document.querySelector('#modal-repair').value = data.repair;
-        document.querySelector('#modal-current-state').value = data.current_state;
-        document.querySelector('#modal-customer-out').value = data.customer_id_out;
-        checkDepartment();
-        checkEquipmentType();
+        dateOut.setDate(new Date(data.repair.date_out));
       }
-    }
-  };
+      const departments = setOptions(data.departments, 'departments');
+      const locations = setOptions(data.locations, 'locations');
+      const buildings = setOptions(data.buildings, 'buildings');
+      const phone = data.locations.find(e => e.id === data.repair.location).phone;
+      const equipmentTypes = setOptions(data.types, 'types');
+      const equipmentBrands = setOptions(data.brands, 'brands');
+      const equipmentModels = setOptions(data.equipment, 'equipment');
+      const employees = setOptions(data.employees, 'names');
+      const customers = setOptions(data.customers, 'names');
+      document.querySelector('#modal-department').innerHTML = '';
+      document.querySelector('#modal-location').innerHTML = '';
+      document.querySelector('#modal-new-location-building').innerHTML = '';
+      document.querySelector('#modal-department-for-new-employee').innerHTML = '';
+      document.querySelector('#modal-department-for-new-location').innerHTML = '';
+      document.querySelector('#modal-equipment-type').innerHTML = '';
+      document.querySelector('#modal-new-equipment-type-id').innerHTML = '';
+      document.querySelector('#modal-equipment-brand').innerHTML = '';
+      document.querySelector('#modal-new-equipment-brand').innerHTML = '';
+      document.querySelector('#modal-equipment-model').innerHTML = '';
+      document.querySelector('#modal-customer-in').innerHTML = '';
+      document.querySelector('#modal-employee').innerHTML = '';
+      document.querySelector('#modal-customer-out').innerHTML = '';
+      document.querySelector('#modal-department').appendChild(departments.cloneNode(true));
+      document.querySelector('#modal-location').appendChild(locations);
+      document.querySelector('#modal-new-location-building').appendChild(buildings);
+      document.querySelector('#modal-department-for-new-employee').appendChild(departments.cloneNode(true));
+      document.querySelector('#modal-department-for-new-location').appendChild(departments);
+      document.querySelector('#modal-equipment-type').appendChild(equipmentTypes.cloneNode(true));
+      document.querySelector('#modal-new-equipment-type-id').appendChild(equipmentTypes);
+      document.querySelector('#modal-equipment-brand').appendChild(equipmentBrands.cloneNode(true));
+      document.querySelector('#modal-new-equipment-brand').appendChild(equipmentBrands);
+      document.querySelector('#modal-equipment-model').appendChild(equipmentModels);
+      document.querySelector('#modal-customer-in').appendChild(customers.cloneNode(true));
+      document.querySelector('#modal-employee').appendChild(employees);
+      document.querySelector('#modal-customer-out').appendChild(customers);
+
+      document.querySelector('#modal-department').value = data.repair.department;
+      document.querySelector('#modal-location').value = data.repair.location;
+      document.querySelector('#modal-phone').value = phone;
+      document.querySelector('#modal-customer-in').value = data.repair.customer_in;
+      document.querySelector('#modal-equipment-type').value = data.repair.type;
+      document.querySelector('#modal-new-equipment-type-id').value = '';
+      document.querySelector('#modal-equipment-brand').value = data.repair.brand;
+      document.querySelector('#modal-new-equipment-brand').value = '';
+      document.querySelector('#modal-equipment-model').value = data.repair.equipment;
+      document.querySelector('#modal-inv').value = data.repair.inv_number;
+      document.querySelector('#modal-employee').value = data.repair.employee;
+      document.querySelector('#modal-defect').value = data.repair.defect;
+      document.querySelector('#modal-repair').value = data.repair.repair;
+      document.querySelector('#modal-current-state').value = data.repair.current_state;
+      document.querySelector('#modal-customer-out').value = data.repair.customer_out;
+      checkDepartment();
+      checkEquipmentTypeAndBrand();
+
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
 }
 /* Remove Repair */
 function removeRepair(el) {
@@ -285,117 +247,147 @@ function removeRepair(el) {
   if (!window.confirm(`Вы действительно хотите удалить строку с номером: ${repairId}?`)) {
     return;
   }
+  const url = document.querySelector('.table-conteiner').dataset.fetch;
   // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'remove');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      const data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: id(' + repairId + ') not found in database.');
+  postData(url, obj, 'remove')
+    .then(data => {
+      if (data.status) {
+        infoBlock('info', data.message, 2000);
+        loadRepairs();
       } else {
-        console.log(data);
-        if (data.status !== true) {
-          alert(data.message);
-        } else {
-          loadRepairs();
-        }
+        infoBlock('error', data.message);
       }
-    }
-  };
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    })
 }
-/* Open modal for add Repair*/
-function addRepair() {
-  // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'get_new_id');
-  xhttp.send(JSON.stringify(null));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      const data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: can\'t load database.');
-      } else {
-        // Modal show
-        modal.open('modal-current-row');
-        document.querySelector('#modal-id').innerHTML = data.id + '*';
-
-        let dateIn = flatpickr('#modal-date-in', cfgFlatpickr);
-        let dateOut = flatpickr('#modal-date-out', cfgFlatpickr);
-        dateIn.setDate(new Date());
-        dateOut.clear();
-        let departments = setOptions(data.departments_data, 'departments');
-        let equipmentType = setOptions(data.type_of_equipment_data, 'typeOfEquipment');
-        let employees = setOptions(data.employees_data, 'names');
-        let buildings = setOptions(data.buildings_data, 'buildings');
-        document.querySelector('#modal-department').innerHTML = '';
-        document.querySelector('#modal-location').innerHTML = '';
-        document.querySelector('#modal-new-location-building').innerHTML = '';
-        document.querySelector('#modal-department-for-new-employee').innerHTML = '';
-        document.querySelector('#modal-department-for-new-location').innerHTML = '';
-        document.querySelector('#modal-equipment-type').innerHTML = '';
-        document.querySelector('#modal-new-equipment-type-id').innerHTML = '';
-        document.querySelector('#modal-equipment-name').innerHTML = '';
-        document.querySelector('#modal-customer-in').innerHTML = '';
-        document.querySelector('#modal-employee').innerHTML = '';
-        document.querySelector('#modal-customer-out').innerHTML = '';
-        document.querySelector('#modal-department').appendChild(departments.cloneNode(true));
-        document.querySelector('#modal-department-for-new-employee').appendChild(departments.cloneNode(true));
-        document.querySelector('#modal-department-for-new-location').appendChild(departments);
-        document.querySelector('#modal-equipment-type').appendChild(equipmentType.cloneNode(true));
-        document.querySelector('#modal-new-equipment-type-id').appendChild(equipmentType);
-        document.querySelector('#modal-employee').appendChild(employees);
-        document.querySelector('#modal-new-location-building').appendChild(buildings);
-
-        document.querySelector('#modal-department').value = '';
-        document.querySelector('#modal-location').value = '';
-        document.querySelector('#modal-phone').value = '';
-        document.querySelector('#modal-customer-in').value = '';
-        document.querySelector('#modal-equipment-type').value = '';
-        document.querySelector('#modal-new-equipment-type-id').value = '';
-        document.querySelector('#modal-inv').value = '';
-        document.querySelector('#modal-employee').value = '';
-        document.querySelector('#modal-defect').value = '';
-        document.querySelector('#modal-repair').value = '';
-        document.querySelector('#modal-current-state').value = '';
-        document.querySelector('#modal-customer-out').value = '';
-      }
-      checkDepartment();
-      checkEquipmentType();
-    }
+/* Copy repairs */
+function copyRepair(el) {
+  // Get id table 'repairs'
+  const obj = {
+    id: el.querySelector(':first-child').innerHTML,
   };
+  const url = document.querySelector('#modal-form').action;
+  postData(url, obj, 'copy')
+    .then(data => {
+      if (data.status) {
+        infoBlock('info', data.message, 2000);
+        loadRepairs();
+      } else {
+        infoBlock('error', data.message);
+      }
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
+}
+/* Open modal for add Repair */
+function addRepair() {
+  const url = document.querySelector('#modal-form').action;
+  // Send the data using post
+  postData(url, {}, 'open_new_form')
+    .then(data => {
+      // Modal show
+      modal.open('modal-current-row');
+      document.querySelector('#modal-id').innerHTML = `${data.newid}*`;
+
+      // Put the result in a form
+      const dateIn = flatpickr('#modal-date-in', cfgFlatpickr);
+      const dateOut = flatpickr('#modal-date-out', cfgFlatpickr);
+      dateIn.setDate(new Date());
+      dateOut.clear();
+      const departments = setOptions(data.departments, 'departments');
+      const equipmentTypes = setOptions(data.types, 'types');
+      const equipmentBrands = setOptions(data.brands, 'brands');
+      const employees = setOptions(data.employees, 'names');
+      const buildings = setOptions(data.buildings, 'buildings');
+      document.querySelector('#modal-department').innerHTML = '';
+      document.querySelector('#modal-location').innerHTML = '';
+      document.querySelector('#modal-new-location-building').innerHTML = '';
+      document.querySelector('#modal-department-for-new-employee').innerHTML = '';
+      document.querySelector('#modal-department-for-new-location').innerHTML = '';
+      document.querySelector('#modal-equipment-type').innerHTML = '';
+      document.querySelector('#modal-new-equipment-type-id').innerHTML = '';
+      document.querySelector('#modal-equipment-brand').innerHTML = '';
+      document.querySelector('#modal-new-equipment-brand').innerHTML = '';
+      document.querySelector('#modal-equipment-model').innerHTML = '';
+      document.querySelector('#modal-customer-in').innerHTML = '';
+      document.querySelector('#modal-employee').innerHTML = '';
+      document.querySelector('#modal-customer-out').innerHTML = '';
+      document.querySelector('#modal-department').appendChild(departments.cloneNode(true));
+      document.querySelector('#modal-department-for-new-employee').appendChild(departments.cloneNode(true));
+      document.querySelector('#modal-department-for-new-location').appendChild(departments);
+      document.querySelector('#modal-equipment-type').appendChild(equipmentTypes.cloneNode(true));
+      document.querySelector('#modal-new-equipment-type-id').appendChild(equipmentTypes);
+      document.querySelector('#modal-equipment-brand').appendChild(equipmentBrands.cloneNode(true));
+      document.querySelector('#modal-new-equipment-brand').appendChild(equipmentBrands);
+      document.querySelector('#modal-employee').appendChild(employees);
+      document.querySelector('#modal-new-location-building').appendChild(buildings);
+
+      document.querySelector('#modal-department').value = '';
+      document.querySelector('#modal-location').value = '';
+      document.querySelector('#modal-phone').value = '';
+      document.querySelector('#modal-customer-in').value = '';
+      document.querySelector('#modal-equipment-type').value = '';
+      document.querySelector('#modal-new-equipment-type-id').value = '';
+      document.querySelector('#modal-equipment-brand').value = '';
+      document.querySelector('#modal-new-equipment-brand').value = '';
+      document.querySelector('#modal-inv').value = '';
+      document.querySelector('#modal-employee').value = data.defaultEmployee;
+      document.querySelector('#modal-defect').value = '';
+      document.querySelector('#modal-repair').value = '';
+      document.querySelector('#modal-current-state').value = '';
+      document.querySelector('#modal-customer-out').value = '';
+      checkDepartment();
+      checkEquipmentTypeAndBrand();
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
 }
 /* Add row to auxiliary table */
-function addRowToAuxiliaryTable(tableName) {
+function addRowToAuxiliaryTable(url, tableName) {
   const obj = getAuxiliaryForm(tableName);
   // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'add_to_auxiliary_table');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      let data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: can\'t load database.');
-      } else {
-        setAuxiliaryForm(data, tableName);
-        modal.close('modal-auxiliary');
+  postData(url, obj, 'add_row_to_auxiliary_table')
+    .then(data => {
+      if (!data.status) {
+        infoBlock('error', data.message);
+        return;
       }
-    }
-  };
+      modal.close('modal-auxiliary');
+      infoBlock('info', data.message, 2000);
+      switch (obj.table) {
+        case 'locations':
+        case 'employees':
+          changeDepartment();
+          break;
+        case 'equipment':
+          changeEquipmentTypeOrBrand();
+          break;
+        default:
+          return getAuxiliaryTable(url, obj.table);
+      }
+    })
+    .then(data => {
+      if (data !== undefined) {
+        updateAuxiliaryForm(data.data, tableName);
+      }
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
 }
-/* Set value in auxiliary form */
-function setAuxiliaryForm(data, tableName) {
+/* Get auxiliary tables */
+function getAuxiliaryTable(url, tableName) {
+  const obj = {table: tableName};
+  // Send the data using post
+  return postData(url, obj, 'get_auxiliary_table')
+    .then(data => data);
+}
+/* Update auxiliary form */
+function updateAuxiliaryForm(data, tableName) {
   switch (tableName) {
     case 'modal-department-add':
       let departments = setOptions(data, 'departments');
@@ -426,104 +418,118 @@ function setAuxiliaryForm(data, tableName) {
       document.querySelector('#modal-customer-out').innerHTML = '';
       document.querySelector('#modal-customer-out').appendChild(employees.cloneNode(true));
       break;
-    case 'modal-equipment-name-add':
+    case 'modal-equipment-model-add':
       let equipment = setOptions(data, 'equipment');
       // Update equipment
       document.querySelector('#modal-equipment-name').innerHTML = '';
       document.querySelector('#modal-equipment-name').appendChild(equipment);
       break;
     case 'modal-equipment-type-add':
-      let typeOfEquipment = setOptions(data, 'typeOfEquipment');
-      // Update equipment
+      let typeOfEquipment = setOptions(data, 'types');
+      // Update type of equipment
       document.querySelector('#modal-equipment-type').innerHTML = '';
-      document.querySelector('#modal-equipment-type').appendChild(typeOfEquipment);
+      document.querySelector('#modal-equipment-type').appendChild(typeOfEquipment.cloneNode(true));
+      // Update type of equipment for new equipment
+      document.querySelector('#modal-new-equipment-type-id').innerHTML = '';
+      document.querySelector('#modal-new-equipment-type-id').appendChild(typeOfEquipment);
+      break;
+    case 'modal-brand-add':
+      let brands = setOptions(data, 'brands');
+      // Update brand of equipment
+      document.querySelector('#modal-equipment-brand').innerHTML = '';
+      document.querySelector('#modal-equipment-brand').appendChild(brands.cloneNode(true));
+      // Update brand of equipment for new equipment
+      document.querySelector('#modal-new-equipment-brand').innerHTML = '';
+      document.querySelector('#modal-new-equipment-brand').appendChild(brands);
       break;
   }
 }
 /* load 'locations' and 'employees' */
-function changeDepartment(val) {
-  const obj = {department_id: val};
+function changeDepartment() {
+  const el = document.querySelector('#modal-department');
+  checkDepartment();
+  if (el.selectedIndex === 0) {
+    return;
+  }
+  const obj = {id: el.value};
+  const url = document.querySelector('#modal-form').action;
   // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'change_department');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      let data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: can\'t load database.');
-      } else {
-        let locations = setOptions(data['locations_data'], 'locations');
-        // Update departments
-        // Update locations
-        document.querySelector('#modal-location').innerHTML = '';
-        document.querySelector('#modal-location').appendChild(locations);
-        let employees = setOptions(data['customers_data'], 'names');
-        // Update customers(in)
-        document.querySelector('#modal-customer-in').innerHTML = '';
-        document.querySelector('#modal-customer-in').appendChild(employees.cloneNode(true));
-        // Update customers(out)
-        document.querySelector('#modal-customer-out').innerHTML = '';
-        document.querySelector('#modal-customer-out').appendChild(employees);
-        checkDepartment();
-      }
-    }
-  };
+  postData(url, obj, 'change_department')
+    .then(data => {
+      // Update locations
+      let locations = setOptions(data['locations'], 'locations');
+      document.querySelector('#modal-location').innerHTML = '';
+      document.querySelector('#modal-location').appendChild(locations);
+      // Update customers(in)
+      let employees = setOptions(data['employees'], 'names');
+      document.querySelector('#modal-customer-in').innerHTML = '';
+      document.querySelector('#modal-customer-in').appendChild(employees.cloneNode(true));
+      // Update customers(out)
+      document.querySelector('#modal-customer-out').innerHTML = '';
+      document.querySelector('#modal-customer-out').appendChild(employees);
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
 }
 /* load 'equipment' */
-function changeEquipmentType(val) {
-  const obj = {type_id: val};
+function changeEquipmentTypeOrBrand() {
+  checkEquipmentTypeAndBrand();
+  const type = document.querySelector('#modal-equipment-type');
+  const brand = document.querySelector('#modal-equipment-brand');
+  if (type.selectedIndex === 0 || brand.selectedIndex === 0) {
+    return;
+  }
+  const obj = {type: type.value,
+               brand: brand.value};
+  const url = document.querySelector('#modal-form').action;
   // Send the data using post
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('POST', '/repairs', true);
-  xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xhttp.setRequestHeader('operation', 'change_equipment_type');
-  xhttp.send(JSON.stringify(obj));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      // Put the result in a form
-      let data = JSON.parse(this.responseText);
-      if (data === null) {
-        alert('Error: can\'t load database.');
-      } else {
-        let equipment = setOptions(data['equipment_data'], 'equipment');
-        // Update equipment
-        document.querySelector('#modal-equipment-name').innerHTML = '';
-        document.querySelector('#modal-equipment-name').appendChild(equipment);
-        checkEquipmentType();
-      }
-    }
-  };
+  postData(url, obj, 'change_equipment_type_or_brand')
+    .then(data => {
+      let equipment = setOptions(data['equipment'], 'equipment');
+      // Update equipment
+      document.querySelector('#modal-equipment-model').innerHTML = '';
+      document.querySelector('#modal-equipment-model').appendChild(equipment);
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
 }
 /* Lock or unlock location and employee */
 function checkDepartment() {
-  let dep = document.querySelector('#modal-department').selectedIndex;
+  const dep = document.querySelector('#modal-department').selectedIndex;
+  const location = document.querySelector('#modal-location');
+  const customerIn = document.querySelector('#modal-customer-in');
+  const customerOut = document.querySelector('#modal-customer-out');
   if (dep !== 0) {
-    document.querySelector('#modal-location').disabled = false;
-    document.querySelector('#modal-customer-in').disabled = false;
-    document.querySelector('#modal-customer-out').disabled = false;
+    location.disabled = false;
+    customerIn.disabled = false;
+    customerOut.disabled = false;
   }
   else {
-    document.querySelector('#modal-location').disabled = true;
-    document.querySelector('#modal-customer-in').disabled = true;
-    document.querySelector('#modal-customer-out').disabled = true;
+    location.innerHTML = '';
+    customerIn.innerHTML = '';
+    customerOut.innerHTML = '';
+    location.disabled = true;
+    customerIn.disabled = true;
+    customerOut.disabled = true;
   }
 }
 /* Lock or unlock equipment */
-function checkEquipmentType() {
-  let et = document.querySelector('#modal-equipment-type').selectedIndex;
-  if (et !== 0) {
-    document.querySelector('#modal-equipment-name').disabled = false;
+function checkEquipmentTypeAndBrand() {
+  const et = document.querySelector('#modal-equipment-type').selectedIndex;
+  const eb = document.querySelector('#modal-equipment-brand').selectedIndex;
+  const equipment = document.querySelector('#modal-equipment-model');
+  if (et !== 0 && eb !== 0) {
+    equipment.disabled = false;
   }
   else {
-    document.querySelector('#modal-equipment-name').disabled = true;
+    equipment.innerHTML = '';
+    equipment.disabled = true;
   }
 }
 /* Set 'options' tags for <select> element*/
-function setOptions(array, type) {
+function setOptions(array, type='') {
   let fragment = new DocumentFragment();
   let content = '';
   fragment.appendChild(document.createElement('option'));
@@ -535,22 +541,16 @@ function setOptions(array, type) {
     }
     let option = document.createElement('option');
     switch (type) {
-      case 'departments':
-        content = `${x.name}`;
-        break;
       case 'locations':
-        content = `${x.office}; ${x.building_id}`;
-        break;
-      case 'buildings':
-        content = `${x.name}`;
+        content = `${x.office}`;
         break;
       case 'names':
         content = `${x.l_name} ${x.f_name} ${x.patronymic}`;
         break;
       case 'equipment':
-        content = `${x.brand} ${x.model}`;
+        content = `${x.model}`;
         break;
-      case 'typeOfEquipment':
+      default:
         content = `${x.name}`;
         break;
     }
@@ -561,12 +561,41 @@ function setOptions(array, type) {
   }
   return fragment;
 }
+/* Get or set default settings */
+const defaultSettings = {
+  update: () => {
+    const data = {
+      numberRowsPerPage: document.querySelector('#rows-per-page').value,
+      repairsDetails: document.querySelector('#show-all-columns').checked,
+      activeRepairs: document.querySelector('#active-repairs').checked,
+      updateRepair: document.querySelector('#update-repairs').checked,
+    };
+    localStorage.setItem('repairs', JSON.stringify(data));
+  },
+  apply: () => {
+    if (localStorage.repairs) {
+      const data = JSON.parse(localStorage.getItem('repairs'));
+      document.querySelector('#rows-per-page').value = data.numberRowsPerPage;
+      document.querySelector('#show-all-columns').checked = data.repairsDetails;
+      document.querySelector('#active-repairs').checked = data.activeRepairs;
+      document.querySelector('#update-repairs').checked = data.updateRepair;
+    } else {
+      document.querySelector('#rows-per-page').value = '20';
+      document.querySelector('#show-all-columns').checked = false;
+      document.querySelector('#active-repairs').checked = false;
+      document.querySelector('#update-repairs').checked = false;
+    }
+  },
+}
 
 docReady(function() {
   // DOM is loaded and ready for manipulation here
 
+  // Apply default settings
+  defaultSettings.apply();
+
   // Table: Details or short form (default short)
-  repairsDetails(false);
+  repairsDetails(document.querySelector('#show-all-columns').checked);
 
   // Load repairs
   loadRepairs();
@@ -580,8 +609,8 @@ docReady(function() {
   });
 
   // Table: Show the current row in table
-  document.getElementsByClassName('table-conteiner')[0].addEventListener('click', (e) => {
-    e.target.querySelectorAll('li.item-conteiner').forEach((item, i) => {
+  document.querySelector('.table-conteiner').addEventListener('click', function(e) {
+    this.querySelectorAll('li.item-conteiner').forEach((item, i) => {
       if (item.classList.contains('table-active-row')) {
         item.classList.remove('table-active-row');
       }
@@ -590,17 +619,17 @@ docReady(function() {
     row && row.classList.add('table-active-row');
   });
   // Open modal: Edit element (double click on a row)
-  document.getElementsByClassName('table-conteiner')[0].addEventListener('dblclick', (e) => {
+  document.querySelector('.table-conteiner').addEventListener('dblclick', function(e) {
     let row = e.target.closest('li.item-conteiner:not(:first-child)');
     row && openRepair(row);
   });
   // Open modal: Edit element (button on the top bar)
   document.querySelector('#edit-row').addEventListener('click', () => {
-    let row = document.getElementsByClassName('table-conteiner')[0].querySelector('.table-active-row');
+    let row = document.querySelector('.table-conteiner .table-active-row');
     if (row) {
       openRepair(row);
     } else {
-      alert('Нет выделенных строк.');
+      infoBlock('info', 'Нет выделенных строк.', 5000);
     }
   });
   // Table: Remove element (button on the top bar)
@@ -609,12 +638,21 @@ docReady(function() {
     if (row) {
       removeRepair(row);
     } else {
-      alert('Нет выделенных строк.');
+      infoBlock('info', 'Нет выделенных строк.', 5000);
     }
   });
   // Open modal: Add element (button on the top bar)
   document.querySelector('#add-row').addEventListener('click', () => {
     addRepair();
+  });
+  // Table: Copy element (button on the top bar)
+  document.querySelector('#copy-row').addEventListener('click', () => {
+    let row = document.querySelector('.table-conteiner .table-active-row');
+    if (row) {
+      copyRepair(row);
+    } else {
+      infoBlock('info', 'Нет выделенных строк.', 5000);
+    }
   });
   // Modal: Submit modal form
   document.querySelector('#modal-form').addEventListener('submit', function(event) {
@@ -624,10 +662,12 @@ docReady(function() {
   });
   // Table: Show only active repairs
   document.querySelector('#active-repairs').addEventListener('click', () => {
+    defaultSettings.update();
     loadRepairs();
   });
   // Table: Change the number of lines per page and reload repairs
   document.querySelector('#rows-per-page').addEventListener('change', () => {
+    defaultSettings.update();
     loadRepairs();
   });
   // Table: Pagigation buttons
@@ -635,11 +675,12 @@ docReady(function() {
     event.preventDefault();
     event.stopPropagation();
     let n = e.target.closest('a');
-    n && loadRepairs(n.innerText);
+    n && loadRepairs(n.dataset.page);
   });
   // Table: Auto update
   var setUpdateTime;
   document.querySelector('#update-repairs').addEventListener('click', function() {
+    defaultSettings.update();
     if (this.checked == true) {
       setUpdateTime && window.clearInterval(setUpdateTime);
       // 1min (60000ms)
@@ -649,8 +690,12 @@ docReady(function() {
     }
   });
   // Modal: Set 'date-out' when changing 'customer-out'
-  document.querySelector('#modal-customer-out').addEventListener('change', () => {
-    flatpickr('#modal-date-out', cfgFlatpickr).setDate(new Date());
+  document.querySelector('#modal-customer-out').addEventListener('change', function() {
+    if (this.selectedIndex > 0) {
+      flatpickr('#modal-date-out', cfgFlatpickr).setDate(new Date());
+    } else {
+      flatpickr('#modal-date-out', cfgFlatpickr).clear();
+    }
   });
   // Modal: Select location (set phone)
   document.querySelector('#modal-location').addEventListener('change', () => {
@@ -665,20 +710,18 @@ docReady(function() {
     });
   });
   // Modal: Select department (load locations and employees)
-  document.querySelector('#modal-department').addEventListener('change', function() {
-    changeDepartment(this.value);
-  });
+  document.querySelector('#modal-department').addEventListener('change', changeDepartment);
   // Modal: Select type of equipment (load equipment)
-  document.querySelector('#modal-equipment-type').addEventListener('change', function() {
-    changeEquipmentType(this.value);
-  });
+  document.querySelector('#modal-equipment-type').addEventListener('change', changeEquipmentTypeOrBrand);
+  // Modal: Select brand of equipment (load equipment)
+  document.querySelector('#modal-equipment-brand').addEventListener('change', changeEquipmentTypeOrBrand);
   // Auxiliary-modal: Submit modal form
   document.querySelectorAll('.modal-auxiliary-form').forEach((item, i) => {
     item.addEventListener('submit', function(event) {
       event.preventDefault();
       event.stopPropagation();
       if (this.style.display !== 'none') {
-        addRowToAuxiliaryTable(this.id);
+        addRowToAuxiliaryTable(this.action, this.id);
       }
     });
   });

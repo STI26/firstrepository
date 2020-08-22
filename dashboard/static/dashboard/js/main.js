@@ -47,22 +47,20 @@ async function postData(url='', data={}, operation='') {
   return response.json();
 }
 /* Show pagination block */
-const showPagination = (page, numberRows, rowsPerPage, halfPaginationLength) => {
+const showPagination = (page, paginator, halfPaginationLength) => {
+  // n: number pages
+  const n = (paginator === null ? 1 : paginator.numPages);
+  page = page - 1;  // start 0
   document.querySelector('.pagination').innerHTML = '';
-  let pagination = new DocumentFragment();
-  let n;
-  if (rowsPerPage === 0) {
-    n = 1;
-  } else {
-    n = Math.ceil(numberRows / rowsPerPage);
-  }
+  const pagination = new DocumentFragment();
   if (n > 1) {
     let i,
         link;
-    if (page > 0) {
+    if (paginator.hasPrevious) {
       link = document.createElement('a');
       link.href = '#';
       link.innerHTML = '&laquo';
+      link.dataset.page = paginator.previousPageNumber;
       pagination.appendChild(link);
     }
     if (page <= halfPaginationLength) {
@@ -97,6 +95,7 @@ const showPagination = (page, numberRows, rowsPerPage, halfPaginationLength) => 
       } else if (page === i) {
         link.classList.add('active');
       }
+      link.dataset.page = i + 1;
       pagination.appendChild(link);
       i++;
     }
@@ -109,10 +108,11 @@ const showPagination = (page, numberRows, rowsPerPage, halfPaginationLength) => 
       link.innerText = n;
       pagination.appendChild(link);
     }
-    if (page < n - 1) {
+    if (paginator.hasNext) {
       link = document.createElement('a');
       link.href = '#';
       link.innerHTML = '&raquo';
+      link.dataset.page = paginator.nextPageNumber;
       pagination.appendChild(link);
     }
     document.querySelector('.pagination').appendChild(pagination);
@@ -151,12 +151,12 @@ const openAuxiliaryModal = (tableName, id=null) => {
       form = 'modal-employee-add';
       break;
     case 'equipment':
-    case 'modal-equipment-name':
+    case 'modal-equipment-model':
       header = 'наименование техники';
       document.querySelector('#modal-new-equipment-type-id').value = 0;
-      document.querySelector('#modal-new-equipment-brand').innerHTML = '';
+      document.querySelector('#modal-new-equipment-brand').value = 0;
       document.querySelector('#modal-new-equipment-model').innerHTML = '';
-      form = 'modal-equipment-name-add';
+      form = 'modal-equipment-model-add';
       break;
     case 'type_of_equipment':
     case 'modal-equipment-type':
@@ -170,12 +170,12 @@ const openAuxiliaryModal = (tableName, id=null) => {
       document.querySelector('#modal-new-building-short-name').innerHTML = '';
       form = 'modal-building-add';
       break;
-    case 'users':
-      header = 'пользователя';
-      document.querySelector('#modal-new-username').innerHTML = '';
-      document.querySelector('#modal-new-password').innerHTML = '';
-      document.querySelector('#modal-new-confirm').innerHTML = '';
-      form = 'modal-user-add';
+    case 'brands':
+    case 'modal-equipment-brand':
+      header = 'филиал';
+      document.querySelector('#modal-new-brand').innerHTML = '';
+      document.querySelector('#modal-new-brand-short-name').innerHTML = '';
+      form = 'modal-brand-add';
       break;
     default:
       break;
@@ -208,7 +208,7 @@ const getAuxiliaryForm = (tableName) => {
         vars: {
           department_id: document.querySelector('#modal-department-for-new-location').value,
           office: document.querySelector('#modal-new-location-office').value,
-          building: document.querySelector('#modal-new-location-building').value,
+          building_id: document.querySelector('#modal-new-location-building').value,
           phone: document.querySelector('#modal-new-location-phone').value
         }
       };
@@ -224,12 +224,12 @@ const getAuxiliaryForm = (tableName) => {
         }
       };
       break;
-    case 'modal-equipment-name-add':
+    case 'modal-equipment-model-add':
       obj = {
         table: 'equipment',
         vars: {
           type_id: document.querySelector('#modal-new-equipment-type-id').value,
-          brand: document.querySelector('#modal-new-equipment-brand').value,
+          brand_id: document.querySelector('#modal-new-equipment-brand').value,
           model: document.querySelector('#modal-new-equipment-model').value
         }
       };
@@ -251,27 +251,22 @@ const getAuxiliaryForm = (tableName) => {
         }
       };
       break;
+    case 'modal-brand-add':
+      obj = {
+        table: 'brands',
+        vars: {
+          name: document.querySelector('#modal-new-brand').value,
+          short_name: document.querySelector('#modal-new-brand-short-name').value
+        }
+      };
+      break;
   }
   return obj;
-};
-/* Get current number page */
-const getNumberPage = (page) => {
-  if (page === '«') {
-    page = document.querySelector('.pagination > a.active').innerText;
-    page = parseInt(page) - 2;
-  } else if (page === '»') {
-    page = document.querySelector('.pagination > a.active').innerText;
-    page = parseInt(page);
-  } else {
-    page = parseInt(page);
-    page = (page > 0 ? page - 1 : 0);
-  }
-  return page;
 };
 /* Display current item in modal */
 const modalDisplay = (id) => {
   Array.from(document.querySelector('.modal-auxiliary .modal-content').children).forEach((item, i) => {
-    if (item.id == id) {
+    if (item.id === id) {
       item.style.display = 'block';
     } else {
       item.style.display = 'none';
@@ -279,14 +274,23 @@ const modalDisplay = (id) => {
   });
 };
 /* Show error block */
-const infoBlock = (type, message) => {
+const infoBlock = (type, message, timeout=null) => {
   // css style type: error, success, info
   const fr = new DocumentFragment();
   const span = document.createElement('span');
   span.innerHTML = 'x';
   span.addEventListener('click', (e) => {
+    e.stopPropagation();
     e.target.parentNode.parentNode.removeChild(e.target.parentNode);
   });
+  // autoclose infoBlock
+  if (timeout !== null) {
+    setTimeout(function () {
+      if (span.parentNode.parentNode) {
+        span.parentNode.parentNode.removeChild(span.parentNode);
+      }
+    }, timeout);
+  }
   const li = document.createElement('li');
   li.classList.add('flash', `flash-${type}`);
   li.innerHTML = message;
