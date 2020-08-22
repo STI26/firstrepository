@@ -58,11 +58,11 @@ class LDAPBackend(ModelBackend):
         user.save()
 
         # Synchronization with employee model
-        self._employeeSynchronization(info)
+        self._employeeSynchronization(info, user)
 
         return user
 
-    def _employeeSynchronization(self, info):
+    def _employeeSynchronization(self, info, user):
         """Update employee info.
         Update technical group.
         """
@@ -80,6 +80,7 @@ class LDAPBackend(ModelBackend):
         employee, created = Employees.objects.update_or_create(
             personal_number=info['personalNumber'],
             defaults={
+                'user': user,
                 'f_name': info['firstName'],
                 'l_name': info['lastName'],
                 'patronymic': info['patronymic'],

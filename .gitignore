@@ -7,8 +7,11 @@ __pycache__/
 *.so
 
 # css
-*.css
+treeview.css
+main.min.css
+4r.min.css
 *.css.map
+prepros-6.config
 
 # Distribution / packaging
 .Python

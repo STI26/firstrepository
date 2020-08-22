@@ -20,7 +20,7 @@ def repairs(request):
         data = json.loads(request.body)
 
         # Run current operation
-        result = repairs.action(operation, data)
+        result = repairs.action(operation, request.user, data)
 
         return JsonResponse(result, safe=False)
     # If method 'GET'

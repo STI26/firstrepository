@@ -37,6 +37,9 @@
         <span title="редактировать запись">
           <i data-feather="edit" class="action" id="edit-row"></i>
         </span>
+        <span title="копировать запись" style="display: none">
+          <i data-feather="copy" class="action" id="copy-row"></i>
+        </span>
         <span title="добавить запись">
           <i data-feather="plus-circle" class="action" id="add-row"></i>
         </span>
@@ -47,65 +50,34 @@
     {%  csrf_token %}
     <ol class="table-conteiner table-repairs" data-fetch="{% url 'repairs' %}">
       <li class="item item-conteiner">
-        <div class="attribute">#</div>
+        <div class="attribute" data-name="#">#</div>
         <div class="attribute-conteiner input-info">
-          <div class="attribute date-in">Дата получения</div>
+          <div class="attribute date-in" data-name="Дата получения">Дата получения</div>
           <div class="attribute-conteiner input-names">
-            <div class="attribute customer-in">В ремонт сдал</div>
-            <div class="attribute employee">В ремонт принял</div>
+            <div class="attribute customer-in" data-name="В ремонт сдал">В ремонт сдал</div>
+            <div class="attribute employee" data-name="В ремонт принял">В ремонт принял</div>
           </div>
         </div>
         <div class="attribute-conteiner deparment-info">
-          <div class="attribute department">Служба</div>
-          <div class="attribute phone">Телефон</div>
+          <div class="attribute department" data-name="Служба">Служба</div>
+          <div class="attribute phone" data-name="Телефон">Телефон</div>
         </div>
         <div class="attribute-conteiner equipment-info">
           <div class="attribute-conteiner equipment-id">
-            <div class="attribute equipment">Техника</div>
-            <div class="attribute inv">Инв.#</div>
+            <div class="attribute equipment" data-name="Техника">Техника</div>
+            <div class="attribute inv" data-name="Инв.#">Инв.#</div>
           </div>
-          <div class="attribute defect">Неисправность</div>
+          <div class="attribute defect" data-name="Неисправность">Неисправность</div>
         </div>
         <div class="attribute-conteiner work-info">
-          <div class="attribute work">Проведённые работы</div>
-          <div class="attribute note">Примечание</div>
+          <div class="attribute work" data-name="Проведённые работы">Проведённые работы</div>
+          <div class="attribute note" data-name="Примечание">Примечание</div>
         </div>
         <div class="attribute-conteiner output-info">
-          <div class="attribute customer-out">Из ремонта получил</div>
-          <div class="attribute date-out">Дата выдачи</div>
+          <div class="attribute customer-out" data-name="Из ремонта получил">Из ремонта получил</div>
+          <div class="attribute date-out" data-name="Дата выдачи">Дата выдачи</div>
         </div>
       </li>
-      {% for col in repairs.repairs %}
-      <li class="item item-conteiner">
-        <div class="attribute" data-name="#">{{ col.id }}</div>
-        <div class="attribute-conteiner input-info">
-          <div class="attribute date-in" title="{{ col.date_in }}" data-name="Дата получения">{{ col.date_in }}</div>
-          <div class="attribute-conteiner input-names">
-            <div class="attribute customer-in" title="{{ col.customer_id_in }}" data-name="В ремонт сдал">{{ col.customer_id_in }}</div>
-            <div class="attribute employee" title="{{ col.employee_id }}" data-name="В ремонт принял">{{ col.employee_id }}</div>
-          </div>
-        </div>
-        <div class="attribute-conteiner deparment-info">
-          <div class="attribute deparment" title="{{ col.department_id }}" data-name="Служба">{{ col.department_id }}</div>
-          <div class="attribute phone" title="{{ col.phone }}" data-name="Телефон">{{ col.phone }}</div>
-        </div>
-        <div class="attribute-conteiner equipment-info">
-          <div class="attribute-conteiner equipment-id">
-            <div class="attribute equipment" title="{{ col.equipment_id }}" data-name="Техника">{{ col.equipment_id }}</div>
-            <div class="attribute inv" title="{{ col.inv_number }}" data-name="Инв.#">{{ col.inv_number }}</div>
-          </div>
-          <div class="attribute defect" title="{{ col.defect }}" data-name="Неисправность">{{ col.defect }}</div>
-        </div>
-        <div class="attribute-conteiner work-info">
-          <div class="attribute work" title="{{ col.repair }}" data-name="Проведённые работы">{{ col.repair }}</div>
-          <div class="attribute note" title="{{ col.current_state }}" data-name="Примечание">{{ col.current_state }}</div>
-        </div>
-        <div class="attribute-conteiner output-info">
-          <div class="attribute customer-out" title="{{ col.customer_id_out }}" data-name="Из ремонта получил">{{ col.customer_id_out }}</div>
-          <div class="attribute date-out" title="{{ col.date_out }}" data-name="Дата выдачи">{{ col.date_out }}</div>
-        </div>
-      </li>
-      {% endfor%}
     </ol>
     <!-- /table -->
     <!-- pagination -->
@@ -113,11 +85,11 @@
       <div class="pagination"></div>
 
       <select id="rows-per-page">
-        <option value="10"{% if rowsPerPage == 10 %} selected{% endif %}>10</option>
-        <option value="20"{% if rowsPerPage == 20 %} selected{% endif %}>20</option>
-        <option value="35"{% if rowsPerPage == 35 %} selected{% endif %}>35</option>
-        <option value="50"{% if rowsPerPage == 50 %} selected{% endif %}>50</option>
-        <option value="0"{% if rowsPerPage == 0 %} selected{% endif %}>все</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="35">35</option>
+        <option value="50">50</option>
+        <option value="0">все</option>
       </select>
     </div>
     <!-- /pagination -->

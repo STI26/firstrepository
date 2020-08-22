@@ -1,7 +1,7 @@
 <!-- The Modal -->
 <div class="modal" id="modal-current-row">
   <div class="modal-content">
-    <form id="modal-form" action="/repairs" metod="POST">
+    <form id="modal-form" action="{% url 'repairs' %}" metod="POST">
       <!-- Modal Header -->
       <div class="modal-header">
         <h4>Запись #<span id="modal-id"></span></h4>
@@ -14,21 +14,21 @@
           <div class="modal-item flex-1">
             <label for="modal-date-in">Дата:</label>
             <div class="btn-block size-s">
-              <input class="flatpickr" type="text" id="modal-date-in" autocomplete="off" placeholder="">
+              <input class="flatpickr" type="text" id="modal-date-in" autocomplete="off" placeholder="" required>
               <button type="button" class="btn-x">x</button>
             </div>
           </div>
           <div class="modal-item flex-2">
             <label for="modal-department">Отдел:</label>
             <div class="btn-block size-s">
-              <select id="modal-department"></select>
+              <select id="modal-department" required></select>
               <button type="button" class="open-auxiliary-modal">+</button>
             </div>
           </div>
           <div class="modal-item flex-2">
             <label for="modal-location">Расположение:</label>
             <div class="btn-block size-s">
-              <select id="modal-location"></select>
+              <select id="modal-location" required></select>
               <button type="button" class="open-auxiliary-modal">+</button>
             </div>
           </div>
@@ -38,24 +38,24 @@
           </div>
         </div>
         <div class="modal-row">
-          <div class="modal-item flex-1">
-            <label for="modal-customer-in">Сдал:</label>
-            <div class="btn-block size-s">
-              <select id="modal-customer-in"></select>
-              <button type="button" class="open-auxiliary-modal">+</button>
-            </div>
-          </div>
           <div class="modal-item flex-2">
             <label for="modal-equipment-type">Техника(тип):</label>
             <div class="btn-block size-s">
-              <select id="modal-equipment-type"></select>
+              <select id="modal-equipment-type" required></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-1">
+            <label for="modal-equipment-brand">Техника(брэнд):</label>
+            <div class="btn-block size-s">
+              <select id="modal-equipment-brand" required></select>
               <button type="button" class="open-auxiliary-modal">+</button>
             </div>
           </div>
           <div class="modal-item flex-2">
-            <label for="modal-equipment-name">Техника(название):</label>
+            <label for="modal-equipment-model">Техника(модель):</label>
             <div class="btn-block size-s">
-              <select id="modal-equipment-name"></select>
+              <select id="modal-equipment-model" required></select>
               <button type="button" class="open-auxiliary-modal">+</button>
             </div>
           </div>
@@ -66,15 +66,22 @@
         </div>
         <div class="modal-row">
           <div class="modal-item flex-1">
-            <label for="modal-employee">Принял:</label>
+            <label for="modal-customer-in">Сдал:</label>
             <div class="btn-block size-s">
-              <select id="modal-employee"></select>
+              <select id="modal-customer-in" required></select>
               <button type="button" class="open-auxiliary-modal">+</button>
             </div>
           </div>
-          <div class="modal-item flex-5">
+          <div class="modal-item flex-1">
+            <label for="modal-employee">Принял:</label>
+            <div class="btn-block size-s">
+              <select id="modal-employee" required></select>
+              <button type="button" class="open-auxiliary-modal">+</button>
+            </div>
+          </div>
+          <div class="modal-item flex-4">
             <label for="modal-defect">Неисправность:</label>
-            <input class="txt size-s" type="text" id="modal-defect" autocomplete="off" placeholder="">
+            <input class="txt size-s" type="text" id="modal-defect" autocomplete="off" placeholder="" required>
           </div>
         </div>
         <h6>Выдано с ремонта.</h6>

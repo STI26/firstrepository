@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Departments(models.Model):
@@ -17,6 +18,7 @@ class Departments(models.Model):
 class Employees(models.Model):
     is_deleted = models.BooleanField(default=False)
     personal_number = models.IntegerField(default=0)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     l_name = models.TextField()
     f_name = models.TextField(blank=True)
     patronymic = models.TextField(blank=True)
@@ -34,11 +36,11 @@ class Employees(models.Model):
 
 
 class Technical_groups(models.Model):
-    employee = models.ManyToManyField(Employees)
+    employees = models.ManyToManyField(Employees)
     group_dn = models.TextField()
 
     def __str__(self):
-        return f'{self.employee}({self.group_dn})'
+        return self.group_dn
 
     class Meta:
         verbose_name = "Technical_group"
@@ -111,7 +113,6 @@ class Equipment(models.Model):
 class Repairs(models.Model):
     is_deleted = models.BooleanField(default=False)
     date_in = models.DateTimeField()
-    department = models.ForeignKey(Departments, on_delete=models.CASCADE)
     location = models.ForeignKey(Locations, on_delete=models.CASCADE)
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     defect = models.TextField()
@@ -137,10 +138,11 @@ class Repairs(models.Model):
 
     def __str__(self):
         return f"""{self.date_in};
-                {self.locations};
+                {self.location};
                 {self.equipment};
                 {self.date_out}
                 """
 
     class Meta:
+        ordering = ['-pk']
         verbose_name = "Repair"
