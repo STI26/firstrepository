@@ -1,0 +1,99 @@
+{% extends "dashboard/layout.html" %}
+{% load static %}
+
+{% block title %}
+Картриджи
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'toners/css/4t.min.css' %}" type="text/css">
+<script src="{% static 'repairs/js/4t.min.js' %}" defer></script>
+{% endblock %}
+
+{% block main %}
+  <!-- main block -->
+  <div class="main">
+    <!-- filter -->
+    <div class="filter">
+      <div>
+        <input type="checkbox" class="switch" id="show-all-columns">
+        <label for="show-all-columns" tooltip="Подробно" class="show-tooltip">
+          <i data-feather="layers" class="svg-title"></i>
+        </label>
+        <input type="checkbox" class="switch" id="active-repairs">
+        <label for="active-repairs" tooltip="Активные" class="show-tooltip">
+          <i data-feather="activity" class="svg-title"></i>
+        </label>
+        <input type="checkbox" class="switch" id="update-repairs">
+        <label for="update-repairs" tooltip="Обновлять" class="show-tooltip">
+          <i data-feather="refresh-ccw" class="svg-title"></i>
+        </label>
+      </div>
+      <div>
+        <span id="db-time-update" title="время обновления данных">{{ time }}</span>
+        <span title="удалить запись">
+          <i data-feather="minus-circle" class="action" id="remove-row"></i>
+        </span>
+        <span title="редактировать запись">
+          <i data-feather="edit" class="action" id="edit-row"></i>
+        </span>
+        <span title="копировать запись" style="display: none">
+          <i data-feather="copy" class="action" id="copy-row"></i>
+        </span>
+        <span title="добавить запись">
+          <i data-feather="plus-circle" class="action" id="add-row"></i>
+        </span>
+      </div>
+    </div>
+    <!-- /filter -->
+    <!-- table -->
+    {%  csrf_token %}
+    <ol class="table-conteiner table-repairs" data-fetch="{% url 'repairs' %}">
+      <li class="item item-conteiner">
+        <div class="attribute" data-name="#">#</div>
+        <div class="attribute-conteiner input-info">
+          <div class="attribute date-in" data-name="Дата получения">Дата получения</div>
+          <div class="attribute-conteiner input-names">
+            <div class="attribute customer-in" data-name="В ремонт сдал">В ремонт сдал</div>
+            <div class="attribute employee" data-name="В ремонт принял">В ремонт принял</div>
+          </div>
+        </div>
+        <div class="attribute-conteiner deparment-info">
+          <div class="attribute department" data-name="Служба">Служба</div>
+          <div class="attribute phone" data-name="Телефон">Телефон</div>
+        </div>
+        <div class="attribute-conteiner equipment-info">
+          <div class="attribute-conteiner equipment-id">
+            <div class="attribute equipment" data-name="Техника">Техника</div>
+            <div class="attribute inv" data-name="Инв.#">Инв.#</div>
+          </div>
+          <div class="attribute defect" data-name="Неисправность">Неисправность</div>
+        </div>
+        <div class="attribute-conteiner work-info">
+          <div class="attribute work" data-name="Проведённые работы">Проведённые работы</div>
+          <div class="attribute note" data-name="Примечание">Примечание</div>
+        </div>
+        <div class="attribute-conteiner output-info">
+          <div class="attribute customer-out" data-name="Из ремонта получил">Из ремонта получил</div>
+          <div class="attribute date-out" data-name="Дата выдачи">Дата выдачи</div>
+        </div>
+      </li>
+    </ol>
+    <!-- /table -->
+    <!-- pagination -->
+    <div class="pagination-block">
+      <div class="pagination"></div>
+
+      <select id="rows-per-page">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="35">35</option>
+        <option value="50">50</option>
+        <option value="0">все</option>
+      </select>
+    </div>
+    <!-- /pagination -->
+
+  </div>
+  <!-- /main block -->
+{% endblock %}

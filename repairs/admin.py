@@ -6,6 +6,7 @@ from .models import (Departments, Employees,
                      Equipment, Repairs,
                      Technical_groups)
 
+
 admin.site.register(Departments)
 admin.site.register(Employees)
 admin.site.register(Technical_groups)

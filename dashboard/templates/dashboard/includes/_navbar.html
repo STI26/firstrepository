@@ -3,22 +3,22 @@
 <nav>
   <ul class="navbar" id="topnavbar">
     <li class="nav-item {% if request.path == '/' %}active{% endif %}">
-      <a href="{% url 'index' %}">БТО#3</a>
+      <a href="{% url 'index' %}">ТОжурнал</a>
     </li>
-    <li class="nav-item {% if request.path == '/docs' %}active{% endif %}">
+    <li class="nav-item {% if request.path == '/docs/' %}active{% endif %}">
       <a href="#">
         <i data-feather="file-text"></i>
         Акты
       </a>
     </li>
-    <li class="nav-item {% if request.path == '/repairs' %}active{% endif %}">
+    <li class="nav-item {% if request.path == '/repairs/' %}active{% endif %}">
       <a href="{% url 'repairs' %}">
         <i data-feather="tool"></i>
         Ремонты
       </a>
     </li>
-    <li class="nav-item {% if request.path == '/toners' %}active{% endif %}">
-      <a href="#">
+    <li class="nav-item {% if request.path == '/toners/' %}active{% endif %}">
+      <a href="{% url 'toners' %}">
         <i data-feather="printer"></i>
         Картриджи
       </a>
