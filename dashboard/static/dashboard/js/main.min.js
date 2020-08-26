@@ -56,6 +56,7 @@ const showPagination = (page, paginator, halfPaginationLength) => {
   if (n > 1) {
     let i,
         link;
+    // Show previous page
     if (paginator.hasPrevious) {
       link = document.createElement('a');
       link.href = '#';
@@ -65,12 +66,14 @@ const showPagination = (page, paginator, halfPaginationLength) => {
     }
     if (page <= halfPaginationLength) {
       i = 0;
+    // Show first page
     } else {
       i = (page > halfPaginationLength ? halfPaginationLength - 2 : halfPaginationLength);
       i = (n > (page + halfPaginationLength) ? page - i : n - (i * 2 + 1));
       link = document.createElement('a');
       link.href = '#';
       link.innerText = 1;
+      link.dataset.page = 1;
       pagination.appendChild(link);
       link = document.createElement('span');
       link.innerHTML = '...';
@@ -86,6 +89,7 @@ const showPagination = (page, paginator, halfPaginationLength) => {
       i = (n - 9 < 0 ? 0 : n - 9);
       maxPage += 2;
     }
+    // Show the main pages of the paginations block
     while (i < maxPage && i < n) {
       link = document.createElement('a');
       link.href = '#';
@@ -99,6 +103,7 @@ const showPagination = (page, paginator, halfPaginationLength) => {
       pagination.appendChild(link);
       i++;
     }
+    // Show last page
     if (n > maxPage + 2) {
       link = document.createElement('span');
       link.innerHTML = '...';
@@ -106,8 +111,10 @@ const showPagination = (page, paginator, halfPaginationLength) => {
       link = document.createElement('a');
       link.href = '#';
       link.innerText = n;
+      link.dataset.page = paginator.numPages;
       pagination.appendChild(link);
     }
+    // Show next page
     if (paginator.hasNext) {
       link = document.createElement('a');
       link.href = '#';

@@ -1,7 +1,7 @@
 from repairs.libs.db_postgresql import Table
 from repairs.models import (Repairs, Employees, Departments,
                             Equipment, Buildings, Locations,
-                            Type_of_equipment, Brands)
+                            TypeOfEquipment, Brands)
 
 
 def i_repairs():
@@ -13,7 +13,6 @@ def i_repairs():
             id=row['id'],
             defaults={
                 'date_in': row['date_in'],
-                'department': Departments.objects.get(pk=row['department_id']),
                 'location': Locations.objects.get(pk=row['location_id']),
                 'equipment': Equipment.objects.get(pk=row['equipment_id']),
                 'defect': row['defect'] if row['defect'] is not None else '',
@@ -120,7 +119,7 @@ def i_type_of_equipment():
         rows = t.get_rows()
 
     for row in rows:
-        new, created = Type_of_equipment.objects.update_or_create(
+        new, created = TypeOfEquipment.objects.update_or_create(
             id=row['id'],
             defaults={
                 'name': row['name'],
@@ -138,7 +137,7 @@ def i_equipment():
         new, created = Equipment.objects.update_or_create(
             id=row['id'],
             defaults={
-                'type': Type_of_equipment.objects.get(pk=row['type_id']),
+                'type': TypeOfEquipment.objects.get(pk=row['type_id']),
                 'brand': Brands.objects.get(name=row['brand']),
                 'model': row['model'] if row['model'] is not None else 'noname',
             },

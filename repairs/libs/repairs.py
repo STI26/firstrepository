@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, date
 from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.apps import apps
 from repairs.models import (Repairs, Employees, Departments,
-                            Technical_groups, Buildings, Locations,
-                            Type_of_equipment, Equipment, Brands)
+                            TechnicalGroups, Buildings, Locations,
+                            TypeOfEquipment, Equipment, Brands)
 
 
 class DataRepairs(object):
@@ -29,7 +29,7 @@ class DataRepairs(object):
         return method()
 
     def open(self):
-        """Fill modal form"""
+        """Get data for filling modal form"""
 
         repair = Repairs.objects.get(pk=self.data['id'])
 
@@ -51,8 +51,30 @@ class DataRepairs(object):
         employee = Employees.objects.get(pk=repair.employee.pk)
 
         # Get all employees with the same technical group
-        tg = Technical_groups.objects.filter(employees=employee).first()
-        employees = tg.employees.all()
+        tg = TechnicalGroups.objects.filter(employees__id=employee.pk).first()
+        if tg is None:
+            employees = Employees.objects.filter(
+                Q(
+                    is_deleted=False,
+                    fired__range=(repair.date_in.date(),
+                                  datetime.now().date())
+                ) | Q(
+                    is_deleted=False,
+                    fired__isnull=True,
+                )
+            )
+        else:
+            employees = tg.employees.filter(
+                Q(
+                    is_deleted=False,
+                    fired__range=(repair.date_in.date(),
+                                  datetime.now().date())
+                ) | Q(
+                    is_deleted=False,
+                    fired__isnull=True,
+                )
+            )
+
         result['employees'] = list(employees.values())
 
         # Get equipment with the same brand and type
@@ -141,6 +163,9 @@ class DataRepairs(object):
     def open_new_form(self):
         """Get a new ID and auxiliary lists for a new form"""
 
+        # Marker: Read only
+        readOnly = False
+
         # Get new ID
         newid = Repairs.objects.aggregate(Max('id'))['id__max'] + 1
 
@@ -150,26 +175,35 @@ class DataRepairs(object):
         # Get all departments
         departments = Departments.objects.filter(is_deleted=False)
 
-        # Get current employee
-        employee = Employees.objects.get(user=self.user)
+        try:
+            # Get current employee
+            employee = Employees.objects.get(user=self.user)
 
-        # Get all employees with the same technical group
-        tg = Technical_groups.objects.filter(employees=employee).first()
-        employees = tg.employees.all()
+            # Get all employees with the same technical group
+            tg = TechnicalGroups.objects.filter(employees=employee).first()
+            employees = tg.employees.filter(
+                    is_deleted=False,
+                    fired__isnull=True,
+                )
+        except Employees.DoesNotExist:
+            readOnly = True
+            employee = None
+            employees = None
 
         # Get all types of equipment
-        types = Type_of_equipment.objects.filter(is_deleted=False)
+        types = TypeOfEquipment.objects.filter(is_deleted=False)
 
         # Get all brands
         brands = Brands.objects.filter(is_deleted=False)
 
         return {'buildings': list(buildings.values()),
                 'departments': list(departments.values()),
-                'employees': list(employees.values()),
                 'brands': list(brands.values()),
                 'types': list(types.values()),
-                'defaultEmployee': employee.id,
-                'newid': newid, }
+                'employees': None if employees is None else list(employees.values()),
+                'defaultEmployee': None if employee is None else employee.id,
+                'newid': newid,
+                'readOnly': readOnly, }
 
     def change_department(self):
         """Get lists of locations and employees
@@ -180,8 +214,18 @@ class DataRepairs(object):
 
         locations = Locations.objects.filter(is_deleted=False,
                                              department=department)
-        employees = Employees.objects.filter(is_deleted=False,
-                                             department=department)
+        employees = Employees.objects.filter(
+            Q(
+                is_deleted=False,
+                department=department,
+                fired__range=(self.data['docDate'].date(),
+                              datetime.now().date())
+            ) | Q(
+                is_deleted=False,
+                department=department,
+                fired__isnull=True,
+            )
+        )
 
         return {'locations': list(locations.values()),
                 'employees': list(employees.values()), }
@@ -191,7 +235,7 @@ class DataRepairs(object):
         relevant to the current type of equipment and brand
         """
 
-        type = Type_of_equipment.objects.get(pk=self.data['type'])
+        type = TypeOfEquipment.objects.get(pk=self.data['type'])
         brand = Brands.objects.get(pk=self.data['brand'])
 
         equipment = Equipment.objects.filter(is_deleted=False,

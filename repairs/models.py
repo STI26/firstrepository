@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class Departments(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
-    short_name = models.TextField()
+    short_name = models.TextField(unique=True)
     department_dn = models.TextField(blank=True)
 
     def __str__(self):
@@ -18,11 +18,13 @@ class Departments(models.Model):
 class Employees(models.Model):
     is_deleted = models.BooleanField(default=False)
     personal_number = models.IntegerField(default=0)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                null=True, blank=True, default=None)
     l_name = models.TextField()
     f_name = models.TextField(blank=True)
     patronymic = models.TextField(blank=True)
     department = models.ForeignKey(Departments, on_delete=models.CASCADE)
+    fired = models.DateField(null=True, blank=True, default=None)
 
     def __str__(self):
         return '{}{}{}'.format(
@@ -35,9 +37,9 @@ class Employees(models.Model):
         verbose_name = "Employee"
 
 
-class Technical_groups(models.Model):
+class TechnicalGroups(models.Model):
     employees = models.ManyToManyField(Employees)
-    group_dn = models.TextField()
+    group_dn = models.TextField(unique=True)
 
     def __str__(self):
         return self.group_dn
@@ -84,7 +86,7 @@ class Brands(models.Model):
         verbose_name = "Brand"
 
 
-class Type_of_equipment(models.Model):
+class TypeOfEquipment(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
 
@@ -98,7 +100,7 @@ class Type_of_equipment(models.Model):
 
 class Equipment(models.Model):
     is_deleted = models.BooleanField(default=False)
-    type = models.ForeignKey(Type_of_equipment, on_delete=models.CASCADE)
+    type = models.ForeignKey(TypeOfEquipment, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brands, on_delete=models.CASCADE)
     model = models.TextField()
 

@@ -231,7 +231,11 @@ function openRepair(el) {
       document.querySelector('#modal-customer-out').value = data.repair.customer_out;
       checkDepartment();
       checkEquipmentTypeAndBrand();
-
+      if (data.readOnly) {
+        readOnly('#modal-current-row').on();
+      } else {
+        readOnly('#modal-current-row').off();
+      }
     })
     .catch(error => {
       infoBlock('error', `${arguments.callee.name} | ${error}`);
@@ -288,6 +292,11 @@ function addRepair() {
   // Send the data using post
   postData(url, {}, 'open_new_form')
     .then(data => {
+      if (data.readOnly) {
+        infoBlock('info', 'У вас нет прав для создания новой записи.', 5000);
+        return;
+      }
+      readOnly('#modal-current-row').off();
       // Modal show
       modal.open('modal-current-row');
       document.querySelector('#modal-id').innerHTML = `${data.newid}*`;
@@ -343,6 +352,7 @@ function addRepair() {
       checkEquipmentTypeAndBrand();
     })
     .catch(error => {
+      modal.close('modal-current-row');
       infoBlock('error', `${arguments.callee.name} | ${error}`);
     });
 }
@@ -451,7 +461,15 @@ function changeDepartment() {
   if (el.selectedIndex === 0) {
     return;
   }
-  const obj = {id: el.value};
+  if (document.querySelector('#modal-date-in').value === '') {
+    docDate = new Date();
+  } else {
+    docDate = flatpickr.parseDate(document.querySelector('#modal-date-in').value, 'd.m.y H:i');
+  }
+  const obj = {
+    id: el.value,
+    docDate: docDate,
+  };
   const url = document.querySelector('#modal-form').action;
   // Send the data using post
   postData(url, obj, 'change_department')
@@ -561,6 +579,39 @@ function setOptions(array, type='') {
   }
   return fragment;
 }
+/* Set readonly attribute on all child elements of 'selector' */
+const readOnly = (selector) => {
+  const imput = document.querySelectorAll(`${selector} input`);
+  const select = document.querySelectorAll(`${selector} select`);
+  const button = document.querySelectorAll(`${selector} button`);
+  this.off = () => {
+    imput.forEach((item, i) => {
+      if (item.id !== 'modal-phone') {
+        item.disabled = false;
+      }
+    });
+    select.forEach((item, i) => {
+      item.disabled = false;
+    });
+    button.forEach((item, i) => {
+      item.disabled = false;
+    });
+  };
+  this.on = () => {
+    imput.forEach((item, i) => {
+      item.disabled = true;
+    });
+    select.forEach((item, i) => {
+      item.disabled = true;
+    });
+    button.forEach((item, i) => {
+      if (!item.classList.contains('btn-secondary')) {
+        item.disabled = true;
+      }
+    });
+  };
+  return this;
+};
 /* Get or set default settings */
 const defaultSettings = {
   update: () => {
@@ -602,7 +653,7 @@ docReady(function() {
 
   // Flatpickr: Clear date
   document.querySelectorAll('.btn-x').forEach((item, i) => {
-    let id = '#' + item.previousElementSibling.id;
+    const id = `#${item.previousElementSibling.id}`;
     item.addEventListener('click', () => {
       flatpickr(id, cfgFlatpickr).clear();
     });
@@ -615,17 +666,17 @@ docReady(function() {
         item.classList.remove('table-active-row');
       }
     });
-    let row = e.target.closest('li.item-conteiner:not(:first-child)');
+    const row = e.target.closest('li.item-conteiner:not(:first-child)');
     row && row.classList.add('table-active-row');
   });
   // Open modal: Edit element (double click on a row)
   document.querySelector('.table-conteiner').addEventListener('dblclick', function(e) {
-    let row = e.target.closest('li.item-conteiner:not(:first-child)');
+    const row = e.target.closest('li.item-conteiner:not(:first-child)');
     row && openRepair(row);
   });
   // Open modal: Edit element (button on the top bar)
   document.querySelector('#edit-row').addEventListener('click', () => {
-    let row = document.querySelector('.table-conteiner .table-active-row');
+    const row = document.querySelector('.table-conteiner .table-active-row');
     if (row) {
       openRepair(row);
     } else {
@@ -634,7 +685,7 @@ docReady(function() {
   });
   // Table: Remove element (button on the top bar)
   document.querySelector('#remove-row').addEventListener('click', () => {
-    let row = document.getElementsByClassName('table-conteiner')[0].querySelector('.table-active-row');
+    const row = document.getElementsByClassName('table-conteiner')[0].querySelector('.table-active-row');
     if (row) {
       removeRepair(row);
     } else {
@@ -647,7 +698,7 @@ docReady(function() {
   });
   // Table: Copy element (button on the top bar)
   document.querySelector('#copy-row').addEventListener('click', () => {
-    let row = document.querySelector('.table-conteiner .table-active-row');
+    const row = document.querySelector('.table-conteiner .table-active-row');
     if (row) {
       copyRepair(row);
     } else {
@@ -674,7 +725,7 @@ docReady(function() {
   document.querySelector('.pagination').addEventListener('click', (e) => {
     event.preventDefault();
     event.stopPropagation();
-    let n = e.target.closest('a');
+    const n = e.target.closest('a');
     n && loadRepairs(n.dataset.page);
   });
   // Table: Auto update
@@ -699,12 +750,12 @@ docReady(function() {
   });
   // Modal: Select location (set phone)
   document.querySelector('#modal-location').addEventListener('change', () => {
-    let selectEl = document.querySelector('#modal-location').selectedOptions;
+    const selectEl = document.querySelector('#modal-location').selectedOptions;
     document.querySelector('#modal-phone').value = selectEl[0].getAttribute('data-phone');
   });
   // Auxiliary-modal: Open
   document.querySelectorAll('.open-auxiliary-modal').forEach((item, i) => {
-    let id = item.previousElementSibling.id;
+    const id = item.previousElementSibling.id;
     item.addEventListener('click', () => {
       openAuxiliaryModal(id);
     });

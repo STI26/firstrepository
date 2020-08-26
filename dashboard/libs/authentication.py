@@ -1,6 +1,6 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
-from repairs.models import Employees, Departments, Technical_groups
+from repairs.models import Employees, Departments, TechnicalGroups
 
 from dashboard.libs.ldap import Ldap
 from decouple import config, Csv
@@ -43,7 +43,7 @@ class LDAPBackend(ModelBackend):
         """Return a user object"""
 
         try:
-            user = UserModel._default_manager.get_by_natural_key(info['username'])
+            user = UserModel.objects.get(username__iexact=info['username'])
         except UserModel.DoesNotExist:
             # Create new user
             user = UserModel.objects.create_user(username=info['username'])
@@ -68,19 +68,22 @@ class LDAPBackend(ModelBackend):
         """
 
         # Get department
-        department, created = Departments.objects.get_or_create(
-            department_dn__iexact=info['departmentDN'],
-            short_name__iexact=info['department'],
-        )
-        if created:
-            department.name = info['departmentDescription']
-            department.save()
+        try:
+            department = Departments.objects.get(
+                short_name__iexact=info['department'],
+            )
+        except Departments.DoesNotExist:
+            department = Departments.objects.create(
+                department_dn=info['departmentDN'],
+                short_name=info['department'],
+                name=info['departmentDescription'],
+            )
 
         # Update employee
         employee, created = Employees.objects.update_or_create(
-            personal_number=info['personalNumber'],
+            user=user,
             defaults={
-                'user': user,
+                'personal_number': info['personalNumber'],
                 'f_name': info['firstName'],
                 'l_name': info['lastName'],
                 'patronymic': info['patronymic'],
@@ -89,10 +92,10 @@ class LDAPBackend(ModelBackend):
         )
 
         # Get 'technical group'
-        technicalGroup, created = Technical_groups.objects.get_or_create(
+        technicalGroup, created = TechnicalGroups.objects.get_or_create(
             group_dn=info['groupDN']
         )
         # Update employees consisting in the technical group
-        technicalGroup.employee.add(employee)
+        technicalGroup.employees.add(employee)
 
         return None

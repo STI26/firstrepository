@@ -2,7 +2,7 @@ from django.db import models
 from repairs.models import (Departments, Equipment, Locations)
 
 
-class Names_of_toner_cartridge(models.Model):
+class NamesOfTonerCartridge(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
     printers = models.ManyToManyField(Equipment)
@@ -27,11 +27,11 @@ class Statuses(models.Model):
             verbose_name_plural = 'Statuses'
 
 
-class Toner_cartridges(models.Model):
+class TonerCartridges(models.Model):
     is_deleted = models.BooleanField(default=False)
     prefix = models.TextField()
     number = models.IntegerField()
-    names = models.ManyToManyField(Names_of_toner_cartridge)
+    names = models.ManyToManyField(NamesOfTonerCartridge)
     owner = models.ForeignKey(Departments, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -42,10 +42,10 @@ class Toner_cartridges(models.Model):
         verbose_name = 'Toner cartridge'
 
 
-class Toner_cartridges_log(models.Model):
+class TonerCartridgesLog(models.Model):
     is_deleted = models.BooleanField(default=False)
     date = models.DateTimeField()
-    toner_cartridge = models.ForeignKey(Toner_cartridges, on_delete=models.CASCADE)
+    toner_cartridge = models.ForeignKey(TonerCartridges, on_delete=models.CASCADE)
     location = models.ForeignKey(Locations, on_delete=models.CASCADE)
     status = models.ForeignKey(Statuses, on_delete=models.CASCADE)
     note = models.TextField(blank=True)
