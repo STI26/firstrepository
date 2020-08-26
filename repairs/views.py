@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from repairs.libs.repairs import DataRepairs
-from repairs.libs.importtable import i_all
 import json
 
 
@@ -26,10 +25,3 @@ def repairs(request):
     # If method 'GET'
     else:
         return render(request, 'repairs/repairs.html')
-
-
-def clondb(request):
-
-    data = i_all()
-
-    return JsonResponse(data, safe=False)

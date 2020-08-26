@@ -151,6 +151,11 @@ ol.table-conteiner {
   grid-template-columns: 1fr;
   grid-gap: 10px;
   font-size: 0.625rem; }
+  ol.table-conteiner.user-select-false {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none; }
   ol.table-conteiner li:first-child {
     display: none; }
   ol.table-conteiner .attribute::before {

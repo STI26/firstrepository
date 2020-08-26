@@ -200,8 +200,8 @@ class Ldap(object):
         if not context:
             try:
                 username, context = username.split('.', 1)
-            except ValueError as e:
-                raise e
+            except ValueError:
+                context = ''
 
         super(Ldap, self).__init__()
         self._server = Server(LDAP_HOST, use_ssl=True)
@@ -241,7 +241,7 @@ class Ldap(object):
 
         self.connection.unbind()
 
-        return True
+        return None
 
     @property
     def connection(self):

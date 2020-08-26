@@ -10,7 +10,20 @@ from repairs.models import (Repairs, Employees, Departments,
 
 
 class DataRepairs(object):
-    """docstring for Repairs.
+    """included methods:
+    open() - Get data for filling modal form.
+    save() - Save current row in database.
+    remove() - Remove current row in database.
+    copy() - Remove current row in database.
+    open_new_form() - Get a new ID and auxiliary lists for a new form.
+    change_department() - Get lists of locations and employees
+        relevant to the current department.
+    change_equipment_type_or_brand() - Get list of equipment
+        relevant to the current type of equipment and brand.
+    get_auxiliary_table() - Get list of departments, types, brands.
+    add_row_to_auxiliary_table() - Add new row to auxiliary table.
+    load_repairs() - Load repairs table.
+    update_id_seq() - Resync primary key fields in Postgres.
 
     Use 'action' for select method.
     """
@@ -249,8 +262,7 @@ class DataRepairs(object):
         return {'equipment': list(equipment.values())}
 
     def get_auxiliary_table(self):
-        """Get list of departments, types, brands
-        """
+        """Get list of departments, types, brands"""
 
         try:
             model = apps.get_model('repairs', self.data['table'])

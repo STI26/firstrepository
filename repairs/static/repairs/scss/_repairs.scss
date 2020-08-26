@@ -13,6 +13,9 @@
 
 // Style table
 ol.table-conteiner {
+  &.user-select-false {
+    user-select: none;
+  }
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 10px;
