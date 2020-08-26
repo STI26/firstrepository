@@ -376,7 +376,7 @@ class DataRepairs(object):
             for table in tables:
                 tableName = table._meta.db_table
                 query = """SELECT setval(\'{table}_id_seq\',
-                           (SELECT MAX(id) FROM {table})+1);"""
+                           (SELECT MAX(id) FROM {table}));"""
                 try:
                     cursor.execute(query.format(table=tableName))
                     result[tableName] = True
