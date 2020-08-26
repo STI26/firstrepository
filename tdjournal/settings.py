@@ -28,7 +28,7 @@ SECRET_KEY = config('APP_SECRET_KEY')
 DEBUG = config('APP_DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = [
-    config('LDAP_SECURITY_EQUALS', cast=Csv(delimiter=';', post_process=list))
+    config('ALLOWED_HOSTS', cast=Csv(delimiter=';', post_process=list))
 ]
 
 
