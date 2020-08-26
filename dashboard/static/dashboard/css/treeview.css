@@ -1,0 +1,37 @@
+.t-node {
+  -webkit-padding-start: 1rem;
+     -moz-padding-start: 1rem;
+          padding-inline-start: 1rem;
+  display: none; }
+
+.t-item, .t-item-empty {
+  font-size: 1rem;
+  padding: 1px; }
+  .t-item::before, .t-item-empty::before {
+    cursor: pointer;
+    content: "\00b7";
+    color: black;
+    display: inline-block;
+    margin-right: .3rem; }
+  .t-item span, .t-item-empty span {
+    width: auto;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    cursor: pointer; }
+  .t-item > span:hover, .t-item-empty > span:hover {
+    color: blue;
+    background-color: #ddedf4; }
+
+.t-item::before {
+  content: "+"; }
+
+.t-item--show::before {
+  content: "-"; }
+.t-item--show > ul {
+  display: block; }
+
+.t-item--selected {
+  color: blue;
+  background-color: #ddedf4; }
