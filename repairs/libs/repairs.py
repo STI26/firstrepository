@@ -1,7 +1,8 @@
-from datetime import datetime, date
+from datetime import datetime
 from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
 from django.db.models import Max, Q
+from django.db import connection, utils
 from django.apps import apps
 from repairs.models import (Repairs, Employees, Departments,
                             TechnicalGroups, Buildings, Locations,
@@ -214,11 +215,14 @@ class DataRepairs(object):
 
         locations = Locations.objects.filter(is_deleted=False,
                                              department=department)
+
+        date = datetime.strptime(self.data['date'],
+                                 '%Y-%m-%dT%H:%M:%S.%fZ')
         employees = Employees.objects.filter(
             Q(
                 is_deleted=False,
                 department=department,
-                fired__range=(self.data['docDate'].date(),
+                fired__range=(date.date(),
                               datetime.now().date())
             ) | Q(
                 is_deleted=False,
@@ -307,7 +311,7 @@ class DataRepairs(object):
 
         # Show all repairs
         if self.data['number'] == 0:
-            return {'repairs': self._formatForMainPage(repairs),
+            return {'repairs': self._format_for_main_page(repairs),
                     'paginator': None,
                     'time': time, }
 
@@ -327,11 +331,11 @@ class DataRepairs(object):
                      'nextPageNumber': nextPageNumber,
                      'numPages': numPages, }
 
-        return {'repairs': self._formatForMainPage(p),
+        return {'repairs': self._format_for_main_page(p),
                 'paginator': paginator,
                 'time': time}
 
-    def _formatForMainPage(self, pageObj):
+    def _format_for_main_page(self, pageObj):
 
         result = []
         for row in pageObj:
@@ -361,3 +365,24 @@ class DataRepairs(object):
             result.append(item)
 
         return result
+
+    def update_id_seq(self):
+        """Resync primary key fields in Postgres."""
+
+        result = {}
+
+        with connection.cursor() as cursor:
+            tables = apps.get_models()
+            for table in tables:
+                tableName = table._meta.db_table
+                query = """SELECT setval(\'{table}_id_seq\',
+                           (SELECT MAX(id) FROM {table})+1);"""
+                try:
+                    cursor.execute(query.format(table=tableName))
+                    result[tableName] = True
+                except utils.ProgrammingError:
+                    result[tableName] = False
+
+        return {'status': True,
+                'message': 'Поля первичного ключа обновлены.',
+                'data': result}

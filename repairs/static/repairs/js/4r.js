@@ -468,8 +468,9 @@ function changeDepartment() {
   }
   const obj = {
     id: el.value,
-    docDate: docDate,
+    date: docDate,
   };
+  console.log(obj);
   const url = document.querySelector('#modal-form').action;
   // Send the data using post
   postData(url, obj, 'change_department')
@@ -508,6 +509,20 @@ function changeEquipmentTypeOrBrand() {
       // Update equipment
       document.querySelector('#modal-equipment-model').innerHTML = '';
       document.querySelector('#modal-equipment-model').appendChild(equipment);
+    })
+    .catch(error => {
+      infoBlock('error', `${arguments.callee.name} | ${error}`);
+    });
+}
+/* load 'equipment' */
+function updateIDSeq() {
+  const obj = {};
+  const url = document.querySelector('#modal-form').action;
+  // Send the data using post
+  postData(url, obj, 'update_id_seq')
+    .then(data => {
+      console.log(data.data);
+      infoBlock('success', data.message, 2000);
     })
     .catch(error => {
       infoBlock('error', `${arguments.callee.name} | ${error}`);
