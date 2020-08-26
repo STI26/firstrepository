@@ -13,6 +13,7 @@ class Departments(models.Model):
 
     class Meta:
         verbose_name = "Department"
+        ordering = ['name']
 
 
 class Employees(models.Model):
@@ -35,6 +36,7 @@ class Employees(models.Model):
 
     class Meta:
         verbose_name = "Employee"
+        ordering = ['l_name', 'f_name', 'department']
 
 
 class TechnicalGroups(models.Model):
@@ -46,6 +48,7 @@ class TechnicalGroups(models.Model):
 
     class Meta:
         verbose_name = "Technical_group"
+        ordering = ['group_dn']
 
 
 class Buildings(models.Model):
@@ -58,6 +61,7 @@ class Buildings(models.Model):
 
     class Meta:
         verbose_name = "Building"
+        ordering = ['name']
 
 
 class Locations(models.Model):
@@ -72,6 +76,7 @@ class Locations(models.Model):
 
     class Meta:
         verbose_name = "Location"
+        ordering = ['office']
 
 
 class Brands(models.Model):
@@ -84,6 +89,7 @@ class Brands(models.Model):
 
     class Meta:
         verbose_name = "Brand"
+        ordering = ['name']
 
 
 class TypeOfEquipment(models.Model):
@@ -96,6 +102,7 @@ class TypeOfEquipment(models.Model):
     class Meta:
         verbose_name = "Type_of_equipment"
         verbose_name_plural = "Type_of_equipment"
+        ordering = ['name']
 
 
 class Equipment(models.Model):
@@ -110,6 +117,7 @@ class Equipment(models.Model):
     class Meta:
         verbose_name = "Equipment"
         verbose_name_plural = "Equipment"
+        ordering = ['model']
 
 
 class Repairs(models.Model):
