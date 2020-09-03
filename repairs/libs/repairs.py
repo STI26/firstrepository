@@ -132,7 +132,8 @@ class DataRepairs(object):
 
         # Create new row
         if id < 0:
-            Repairs.objects.create(**defaults)
+            newRow = Repairs.objects.create(**defaults)
+            id = newRow.id
         # Update row
         else:
             count = Repairs.objects.filter(pk=id).update(**defaults)
