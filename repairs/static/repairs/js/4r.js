@@ -61,7 +61,7 @@ function loadRepairs(page=1) {
       data.repairs.forEach((item, i) => {
         let row = rows[0].cloneNode(true);
         row.querySelector('.attribute').innerText = item.id;
-        row.querySelector('.attribute.date-in').innerText = item.dateIn;
+        row.querySelector('.attribute.date-in').innerText = addTimeZone(item.dateIn, toString=true);
         row.querySelector('.attribute.customer-in').innerText = item.customerIn;
         row.querySelector('.attribute.employee').innerText = item.employee;
         row.querySelector('.attribute.department').innerText = item.department;
@@ -72,9 +72,9 @@ function loadRepairs(page=1) {
         row.querySelector('.attribute.work').innerText = item.repair;
         row.querySelector('.attribute.note').innerText = item.currentState;
         row.querySelector('.attribute.customer-out').innerText = item.customerOut;
-        row.querySelector('.attribute.date-out').innerText = item.dateOut;
+        row.querySelector('.attribute.date-out').innerText = addTimeZone(item.dateOut, toString=true);
 
-        row.querySelector('.attribute.date-in').title = item.dateIn;
+        row.querySelector('.attribute.date-in').title = addTimeZone(item.dateIn, toString=true);
         row.querySelector('.attribute.customer-in').title = item.customerIn;
         row.querySelector('.attribute.employee').title = item.employee;
         row.querySelector('.attribute.department').title = item.department;
@@ -85,7 +85,7 @@ function loadRepairs(page=1) {
         row.querySelector('.attribute.work').title = item.repair;
         row.querySelector('.attribute.note').title = item.currentState;
         row.querySelector('.attribute.customer-out').title = item.customerOut;
-        row.querySelector('.attribute.date-out').title = item.dateOut;
+        row.querySelector('.attribute.date-out').title = addTimeZone(item.dateOut, toString=true);
         fragment.appendChild(row);
       });
       table.appendChild(fragment);
@@ -171,12 +171,12 @@ function openRepair(el) {
       document.querySelector('#modal-id').innerHTML = data.repair.id;
 
       const dateIn = flatpickr('#modal-date-in', cfgFlatpickr);
-      dateIn.setDate(new Date(data.repair.date_in));
+      dateIn.setDate(addTimeZone(data.repair.date_in));
       const dateOut = flatpickr('#modal-date-out', cfgFlatpickr);
       if (data.repair.date_out == null) {
         dateOut.clear();
       } else {
-        dateOut.setDate(new Date(data.repair.date_out));
+        dateOut.setDate(addTimeZone(data.repair.date_out));
       }
       const departments = setOptions(data.departments, 'departments');
       const locations = setOptions(data.locations, 'locations');

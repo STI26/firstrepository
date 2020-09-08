@@ -308,7 +308,7 @@ class DataRepairs(object):
         self.data.activeRepairs - if true only active repairs; type: bool
 
         Return:
-        {repairs: repairs data, time: current time}
+        {repairs: repairs data, paginator: paginator data, time: current time}
         """
 
         # Get current time
@@ -353,7 +353,7 @@ class DataRepairs(object):
         result = []
         for row in pageObj:
             if row.date_out is not None:
-                dateOut = row.date_out.strftime('%d.%m.%y %H:%M')
+                dateOut = row.date_out
                 customerOut = str(row.customer_out)
             else:
                 dateOut = ''
@@ -361,7 +361,7 @@ class DataRepairs(object):
 
             item = {
                 'id': row.pk,
-                'dateIn': row.date_in.strftime('%d.%m.%y %H:%M'),
+                'dateIn': row.date_in,
                 'customerIn': str(row.customer_in),
                 'employee': str(row.employee),
                 'department': str(row.location),
