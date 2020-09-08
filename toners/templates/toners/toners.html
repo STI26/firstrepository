@@ -7,7 +7,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'toners/css/4t.min.css' %}" type="text/css">
-<script src="{% static 'repairs/js/4t.min.js' %}" defer></script>
+<script src="{% static 'toners/js/4t.min.js' %}" defer></script>
 {% endblock %}
 
 {% block main %}
@@ -48,8 +48,8 @@
     <!-- /filter -->
     <!-- table -->
     {%  csrf_token %}
-    <ol class="table-conteiner table-repairs" data-fetch="{% url 'repairs' %}">
-      <li class="item item-conteiner">
+    <ol class="table-conteiner table-toners" data-fetch="{% url 'toners' %}">
+      <!-- <li class="item item-conteiner">
         <div class="attribute" data-name="#">#</div>
         <div class="attribute-conteiner input-info">
           <div class="attribute date-in" data-name="Дата получения">Дата получения</div>
@@ -77,9 +77,10 @@
           <div class="attribute customer-out" data-name="Из ремонта получил">Из ремонта получил</div>
           <div class="attribute date-out" data-name="Дата выдачи">Дата выдачи</div>
         </div>
-      </li>
+      </li> -->
     </ol>
     <!-- /table -->
+    <button type="button" id="toners" name="button">Toners</button>
     <!-- pagination -->
     <div class="pagination-block">
       <div class="pagination"></div>

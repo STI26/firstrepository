@@ -321,12 +321,19 @@ const infoBlock = (type, message, timeout=null) => {
 };
 /* Convert to datetime with local timezone */
 const addTimeZone = (dt, toString=false) => {
+  if (dt === '' || dt === null) {
+    return '';
+  }
   d = new Date(dt);
   d.setTime(d.getTime() + (-d.getTimezoneOffset() * 60000));
   if (!toString) {
     return d;
   }
-  return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
+  const date = (d.getDate() < 10 ? `0${d.getDate()}` : d.getDate());
+  const month = (d.getMonth() < 10 ? `0${d.getMonth() + 1}` : d.getMonth() + 1);
+  const hours = (d.getHours() < 10 ? `0${d.getHours()}` : d.getHours());
+  const minutes = (d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes());
+  return `${date}.${month}.${d.getFullYear()} ${hours}:${minutes}`;
 };
 // Methods for modal object
 const modal = {
