@@ -46,6 +46,8 @@ class DataRepairs(object):
         """Get data for filling modal form"""
 
         repair = Repairs.objects.get(pk=self.data['id'])
+        print('+++++++++++++++++++++++open+++++++++++++++++++++++')
+        print(repair.date_in)
 
         data = model_to_dict(repair)
 
@@ -116,6 +118,8 @@ class DataRepairs(object):
         else:
             customerOut = self.data['customer_out']
 
+        print('---------------save---------------')
+        print(datetime.strptime(self.data['date_in'], '%Y-%m-%dT%H:%M:%S.%fZ'))
         defaults = {
             'date_in': self.data['date_in'],
             'location': Locations.objects.get(pk=self.data['location']),
