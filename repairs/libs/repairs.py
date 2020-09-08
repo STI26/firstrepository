@@ -46,6 +46,8 @@ class DataRepairs(object):
         """Get data for filling modal form"""
 
         repair = Repairs.objects.get(pk=self.data['id'])
+        print('+++++++++++++++++++++++open+++++++++++++++++++++++')
+        print(repair.date_in)
 
         data = model_to_dict(repair)
 
@@ -116,6 +118,8 @@ class DataRepairs(object):
         else:
             customerOut = self.data['customer_out']
 
+        print('---------------save---------------')
+        print(datetime.strptime(self.data['date_in'], '%Y-%m-%dT%H:%M:%S.%fZ'))
         defaults = {
             'date_in': self.data['date_in'],
             'location': Locations.objects.get(pk=self.data['location']),
@@ -308,7 +312,7 @@ class DataRepairs(object):
         self.data.activeRepairs - if true only active repairs; type: bool
 
         Return:
-        {repairs: repairs data, time: current time}
+        {repairs: repairs data, paginator: paginator data, time: current time}
         """
 
         # Get current time
@@ -353,7 +357,7 @@ class DataRepairs(object):
         result = []
         for row in pageObj:
             if row.date_out is not None:
-                dateOut = row.date_out.strftime('%d.%m.%y %H:%M')
+                dateOut = row.date_out
                 customerOut = str(row.customer_out)
             else:
                 dateOut = ''
@@ -361,7 +365,7 @@ class DataRepairs(object):
 
             item = {
                 'id': row.pk,
-                'dateIn': row.date_in.strftime('%d.%m.%y %H:%M'),
+                'dateIn': row.date_in,
                 'customerIn': str(row.customer_in),
                 'employee': str(row.employee),
                 'department': str(row.location),

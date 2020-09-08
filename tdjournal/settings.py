@@ -27,9 +27,8 @@ SECRET_KEY = config('APP_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('APP_DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = [
-    config('ALLOWED_HOSTS', cast=Csv(delimiter=';', post_process=list))
-]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS',
+                       cast=Csv(delimiter=';', post_process=list))
 
 
 # Application definition
@@ -136,6 +135,10 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR + '/statics'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 LOGIN_URL = '/login/'
 

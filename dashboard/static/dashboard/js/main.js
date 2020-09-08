@@ -319,6 +319,15 @@ const infoBlock = (type, message, timeout=null) => {
   };
   return this;
 };
+/* Convert to datetime with local timezone */
+const addTimeZone = (dt, toString=false) => {
+  d = new Date(dt);
+  d.setTime(d.getTime() + (-d.getTimezoneOffset() * 60000));
+  if (!toString) {
+    return d;
+  }
+  return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
+};
 // Methods for modal object
 const modal = {
   modals: document.querySelectorAll('.modal'),
