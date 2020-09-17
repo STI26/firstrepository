@@ -1,0 +1,81 @@
+// Icons
+svg {
+  vertical-align: middle;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+
+	&.svg-title {
+		vertical-align: text-bottom;
+		height: $icon-size;
+		width: $icon-size;
+	}
+
+	&.svg-low-size {
+		height: $low-size;
+		width: $low-size;
+	}
+
+	&.feather-user {
+		border-radius: 50%;
+		// border: 2px solid $color-dark-20;
+	}
+
+	&.action {
+		vertical-align: text-bottom;
+		height: $icon-size;
+		width: $icon-size;
+		cursor: pointer;
+
+		&:hover {
+			color: $icon-color-defaulf;
+		}
+
+		&.feather-x {
+			&:hover {
+				color: $icon-color-close;
+			}
+		}
+
+		&.feather-x-circle {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+
+			&:hover {
+				color: $icon-color-close;
+			}
+		}
+
+		&.feather-check-circle {
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+
+			&:hover {
+				color: $icon-color-apply;
+			}
+		}
+	}
+}
+// SVG-icon for mobile version. Description for tablet or more version.
+.show-tooltip {
+	.svg-title {
+		display: initial;
+	}
+
+	&::before {
+		content: "";
+	}
+}
+@include tablet {
+  .show-tooltip {
+    .svg-title {
+      display: none;
+    }
+
+    &::before {
+      content: attr(tooltip);
+    }
+  }
+}

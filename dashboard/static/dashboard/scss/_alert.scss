@@ -1,0 +1,33 @@
+// Message(alert) info
+.flash {
+	position: absolute;
+	top: 0;
+	z-index: 50;
+	padding: 4px;
+	text-align: center;
+	font-size: $low-size;
+	width: 100%;
+	border: $alert-border;
+	span {
+		float: right;
+		cursor: pointer;
+		margin-right: .3rem;
+	}
+	&.flash {
+		&-error {
+			background-color: $alert-bg-error;
+			border-color: $alert-border-error;
+			color: $alert-color-error;
+		}
+		&-success {
+			background-color: $alert-bg-success;
+			border-color: $alert-border-success;
+			color: $alert-color-success;
+		}
+		&-info {
+			background-color: $alert-bg-info;
+			border-color: $alert-border-info;
+			color: $alert-color-info;
+		}
+	}
+}

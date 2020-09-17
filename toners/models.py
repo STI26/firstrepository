@@ -10,23 +10,25 @@ class NamesOfTonerCartridge(models.Model):
     def __str__(self):
         return self.name
 
-        class Meta:
-            verbose_name = 'Names of toner cartridge'
-            ordering = ['name']
+    class Meta:
+        verbose_name = 'Names of toner cartridge'
+        ordering = ['name']
 
 
 class Statuses(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
-    logo = models.TextField()
+    logo = models.TextField(
+        help_text='Select feathericon name (https://feathericons.com/)'
+    )
 
     def __str__(self):
         return self.name
 
-        class Meta:
-            verbose_name = 'Status'
-            verbose_name_plural = 'Statuses'
-            ordering = ['name']
+    class Meta:
+        verbose_name = 'Status'
+        verbose_name_plural = 'Statuses'
+        ordering = ['name']
 
 
 class TonerCartridges(models.Model):

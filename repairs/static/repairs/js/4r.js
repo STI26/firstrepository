@@ -5,14 +5,14 @@ function repairsDetails(details=true) {
     displayElementsBySelector('.phone', 'none');
     displayElementsBySelector('.inv', 'none');
     displayElementsBySelector('.customer-out', 'none');
-    document.querySelector('.table-conteiner').style.fontSize = '1rem';
+    document.querySelector('.table-conteiner').classList.add('short-form');
   };
   let setDetails = function() {
     displayElementsBySelector('.input-names', 'initial');
     displayElementsBySelector('.phone', 'initial');
     displayElementsBySelector('.inv', 'initial');
     displayElementsBySelector('.customer-out', 'initial');
-    document.querySelector('.table-conteiner').style.fontSize = '.625rem';
+    document.querySelector('.table-conteiner').classList.remove('short-form');
   };
   document.querySelector('#show-all-columns').addEventListener('click', function() {
     defaultSettings.update();
@@ -514,7 +514,7 @@ function changeEquipmentTypeOrBrand() {
       infoBlock('error', `${arguments.callee.name} | ${error}`);
     });
 }
-/* load 'equipment' */
+/* Update sequence ID */
 function updateIDSeq() {
   const obj = {};
   const url = document.querySelector('#modal-form').action;
@@ -700,7 +700,7 @@ docReady(function() {
   });
   // Table: Remove element (button on the top bar)
   document.querySelector('#remove-row').addEventListener('click', () => {
-    const row = document.getElementsByClassName('table-conteiner')[0].querySelector('.table-active-row');
+    const row = document.querySelector('.table-conteiner .table-active-row');
     if (row) {
       removeRepair(row);
     } else {

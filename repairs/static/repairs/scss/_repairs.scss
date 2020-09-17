@@ -44,25 +44,6 @@ ol.table-conteiner {
   background-color: $color-light;
 }
 
-// Pagination block
-.pagination-block {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem;
-
-  select {
-    height: 1.875rem;
-    flex-basis: 8rem;
-    flex-grow: 0;
-    border-radius: $btn-border-radius;
-    border: 1px solid $btn-color-default-50;
-    background-color: $accent-color;
-  }
-}
-
 // Mobile+ version
 @include mobile {
   ol.table-conteiner {
@@ -78,6 +59,18 @@ ol.table-conteiner {
     border-top: $table-border;
     grid-template-columns: 1fr;
     grid-gap: 0;
+    &:not(.short-form) {
+      font-size: $table-size2;
+      .attribute {
+        padding: 2px;
+      }
+    }
+    &.short-form {
+      font-size: $table-size1;
+      .attribute {
+        padding: 4px;
+      }
+    }
     .item-conteiner {
       // display: grid;
 
@@ -118,7 +111,6 @@ ol.table-conteiner {
   .attribute {
     border-right: $table-border;
     border-bottom: $table-border;
-    padding: 2px;
     overflow: hidden!important;
     white-space: nowrap!important;
     text-overflow: ellipsis!important;

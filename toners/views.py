@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from toners.libs.toners import DataToners
+from django.db.models import Q
+from .models import Statuses, NamesOfTonerCartridge
+from repairs.models import Brands
 import json
 
 
@@ -24,4 +27,16 @@ def toners(request):
         return JsonResponse(result, safe=False)
     # If method 'GET'
     else:
-        return render(request, 'toners/toners.html')
+
+        data = {}
+
+        data['statuses'] = Statuses.objects.filter(is_deleted=False)
+
+        data['brands'] = Brands.objects.filter(is_deleted=False).filter(
+            Q(equipment__type__name__iexact='принтер')
+            | Q(equipment__type__name__iexact='мфу')
+        ).distinct()
+
+        data['types'] = NamesOfTonerCartridge.objects.filter(is_deleted=False)
+
+        return render(request, 'toners/toners.html', data)

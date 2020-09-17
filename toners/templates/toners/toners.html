@@ -11,76 +11,83 @@
 {% endblock %}
 
 {% block main %}
-  <!-- main block -->
-  <div class="main">
+
+<!-- main block -->
+<div class="main-flex">
+  <!-- sidebar -->
+  <div class="sidebar open">
+    <button class="btn btn-primary-0" id="reset-filters"><i data-feather="layers" class="svg-title"></i>Сбросить фильтры</button>
+    <div class="divider"></div>
+    <div class="description"><span><i data-feather="filter" class="svg-title"></i></span>Фильтр: <span id="side-filter"></span></div>
+    <button class="btn btn-primary-0 sidebar-dropdown-btn"><i data-feather="printer" class="svg-title"></i>Брэнд</button>
+    <div class="dropdown-container">
+      {% if brands %}
+      {% for brand in brands %}
+      <button class="btn btn-light" name="brand">{{ brand.short_name }}</button>
+      {% endfor %}
+      {% endif %}
+    </div>
+    <button class="btn btn-primary-0 sidebar-dropdown-btn"><i data-feather="grid" class="svg-title"></i>Тип</button>
+    <div class="dropdown-container">
+      {% if types %}
+      {% for type in types %}
+      <button class="btn btn-light" name="type">{{ type.name }}</button>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+  <div class="sidebar-toggler">&lsaquo;&lsaquo;</div>
+  <!-- /sidebar -->
+  <!-- content block -->
+  <div class="content-block">
     <!-- filter -->
     <div class="filter">
       <div>
-        <input type="checkbox" class="switch" id="show-all-columns">
-        <label for="show-all-columns" tooltip="Подробно" class="show-tooltip">
-          <i data-feather="layers" class="svg-title"></i>
+        {% if statuses %}
+        {% for status in statuses %}
+        <input type="checkbox" class="switch" data-status="{{ status.pk }}" id="status-{{ status.pk }}">
+        <label for="status-{{ status.pk }}" tooltip="{{ status.name }}" class="show-tooltip">
+          <i data-feather="{{ status.logo }}" class="svg-title"></i>
         </label>
-        <input type="checkbox" class="switch" id="active-repairs">
-        <label for="active-repairs" tooltip="Активные" class="show-tooltip">
-          <i data-feather="activity" class="svg-title"></i>
-        </label>
-        <input type="checkbox" class="switch" id="update-repairs">
-        <label for="update-repairs" tooltip="Обновлять" class="show-tooltip">
-          <i data-feather="refresh-ccw" class="svg-title"></i>
-        </label>
+        {% endfor %}
+        {% endif %}
       </div>
       <div>
         <span id="db-time-update" title="время обновления данных">{{ time }}</span>
-        <span title="удалить запись">
+        <span title="удалить картридж">
           <i data-feather="minus-circle" class="action" id="remove-row"></i>
         </span>
-        <span title="редактировать запись">
-          <i data-feather="edit" class="action" id="edit-row"></i>
+        <span title="просмотреть историю картриджа">
+          <i data-feather="book" class="action" id="open-log"></i>
         </span>
-        <span title="копировать запись" style="display: none">
-          <i data-feather="copy" class="action" id="copy-row"></i>
+        <span title="изменить расположение картриджа">
+          <i data-feather="play" class="action" id="move-row"></i>
         </span>
-        <span title="добавить запись">
+        <span title="добавить картридж">
           <i data-feather="plus-circle" class="action" id="add-row"></i>
         </span>
       </div>
     </div>
     <!-- /filter -->
-    <!-- table -->
+    <div class="filter-models" id="printer-models-block"></div>
+    <!-- main table -->
     {%  csrf_token %}
     <ol class="table-conteiner table-toners" data-fetch="{% url 'toners' %}">
-      <!-- <li class="item item-conteiner">
+      <li class="item item-conteiner">
         <div class="attribute" data-name="#">#</div>
-        <div class="attribute-conteiner input-info">
-          <div class="attribute date-in" data-name="Дата получения">Дата получения</div>
-          <div class="attribute-conteiner input-names">
-            <div class="attribute customer-in" data-name="В ремонт сдал">В ремонт сдал</div>
-            <div class="attribute employee" data-name="В ремонт принял">В ремонт принял</div>
-          </div>
+        <div class="attribute-conteiner toner-info">
+          <div class="attribute toner-id" data-name="ID">ID</div>
+          <div class="attribute toner-type" data-name="Тип">Тип</div>
         </div>
-        <div class="attribute-conteiner deparment-info">
-          <div class="attribute department" data-name="Служба">Служба</div>
-          <div class="attribute phone" data-name="Телефон">Телефон</div>
+        <div class="attribute-conteiner location-info">
+          <div class="attribute owner" data-name="Владелец">Владелец</div>
+          <div class="attribute location" data-name="Место">Место</div>
         </div>
-        <div class="attribute-conteiner equipment-info">
-          <div class="attribute-conteiner equipment-id">
-            <div class="attribute equipment" data-name="Техника">Техника</div>
-            <div class="attribute inv" data-name="Инв.#">Инв.#</div>
-          </div>
-          <div class="attribute defect" data-name="Неисправность">Неисправность</div>
-        </div>
-        <div class="attribute-conteiner work-info">
-          <div class="attribute work" data-name="Проведённые работы">Проведённые работы</div>
-          <div class="attribute note" data-name="Примечание">Примечание</div>
-        </div>
-        <div class="attribute-conteiner output-info">
-          <div class="attribute customer-out" data-name="Из ремонта получил">Из ремонта получил</div>
-          <div class="attribute date-out" data-name="Дата выдачи">Дата выдачи</div>
-        </div>
-      </li> -->
+        <div class="attribute status" data-name="Статус">Статус</div>
+        <div class="attribute date" data-name="Дата">Дата</div>
+      </li>
     </ol>
-    <!-- /table -->
-    <button type="button" id="toners" name="button">Toners</button>
+    <!-- /main table -->
     <!-- pagination -->
     <div class="pagination-block">
       <div class="pagination"></div>
@@ -94,7 +101,27 @@
       </select>
     </div>
     <!-- /pagination -->
-
+    <!-- log table -->
+    <div class="table" id="table-toners-log">
+      <h3 class="table-header">
+        <span></span>
+        <span title="">
+          <i data-feather="x" class="action feather-x" data-target="table-toners-log"></i>
+        </span>
+      </h3>
+      <ol class="table-conteiner table-toners-log user-select-false" data-fetch="{% url 'toners' %}">
+        <li class="item item-conteiner">
+          <div class="attribute" data-name="#">#</div>
+          <div class="attribute date" data-name="Дата">Дата</div>
+          <div class="attribute status" data-name="Статус">Статус</div>
+          <div class="attribute location" data-name="Место">Место</div>
+          <div class="attribute note" data-name="Примечание">Примечание</div>
+        </li>
+      </ol>
+    </div>
+    <!-- /log table -->
   </div>
-  <!-- /main block -->
+  <!-- /content block -->
+</div>
+<!-- /main block -->
 {% endblock %}

@@ -345,16 +345,18 @@ class Ldap(object):
         except IndexError:
             patronymic = ''
 
-        return {'firstName': firstName,
-                'lastName': lastName,
-                'patronymic': patronymic,
-                'personalNumber': info[0]['attributes']['generationQualifier'],
-                'username': self._usernameID,
-                'department': info[0]['attributes']['ou'][0],
-                'departmentDN': self._context,
-                'departmentDescription': description,
-                'location': info[0]['attributes']['l'][0],
-                'email': info[0]['attributes']['mail'][0]}
+        return {
+            'firstName': firstName,
+            'lastName': lastName,
+            'patronymic': patronymic,
+            'personalNumber': info[0]['attributes']['generationQualifier'][0],
+            'username': self._usernameID,
+            'department': info[0]['attributes']['ou'][0],
+            'departmentDN': self._context,
+            'departmentDescription': description,
+            'location': info[0]['attributes']['l'][0],
+            'email': info[0]['attributes']['mail'][0]
+        }
 
     def _getDepartmentName(self):
         """Get user info

@@ -320,7 +320,7 @@ const infoBlock = (type, message, timeout=null) => {
   return this;
 };
 /* Convert to datetime with local timezone */
-const addTimeZone = (dt, toString=false) => {
+const addTimeZone = (dt, toString=false, onlyDate=false) => {
   if (dt === '' || dt === null) {
     return '';
   }
@@ -331,6 +331,9 @@ const addTimeZone = (dt, toString=false) => {
   }
   const date = (d.getDate() < 10 ? `0${d.getDate()}` : d.getDate());
   const month = (d.getMonth() < 10 ? `0${d.getMonth() + 1}` : d.getMonth() + 1);
+  if (onlyDate) {
+    return `${date}.${month}.${d.getFullYear()}`;
+  }
   const hours = (d.getHours() < 10 ? `0${d.getHours()}` : d.getHours());
   const minutes = (d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes());
   return `${date}.${month}.${d.getFullYear()} ${hours}:${minutes}`;

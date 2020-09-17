@@ -14,6 +14,7 @@ class DepartmentsAdmin(admin.ModelAdmin):
 class EmployeesAdmin(admin.ModelAdmin):
     list_display = ('l_name', 'f_name', 'department',)
     search_fields = ['l_name']
+    list_filter = ('department__short_name',)
 
 
 class TechnicalGroupsAdmin(admin.ModelAdmin):

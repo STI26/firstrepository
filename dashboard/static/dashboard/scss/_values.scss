@@ -17,8 +17,10 @@ $color-dark-20: rgba(#212221, .2);
 $color-dark-70: rgba(#212221, .7);
 $accent-color: #E4BF3F;
 $btn-color-primary: #007BFF; //#1181B2
+$btn-color-primary-0: rgba(#000000, 0);
 $btn-color-secondary: #6c757d;
 $btn-color-primary-hover: #0069D9;
+$btn-color-primary-hover-0: rgba(#000000, .4);
 $btn-color-secondary-hover: #565d63;
 $btn-color-active: rgba(#000000, .1);
 $btn-color-default: #cccccc;
@@ -29,6 +31,7 @@ $icon-color-defaulf: rgb(5, 5, 255);
 $icon-color-apply: rgb(5, 255, 5);
 $icon-color-close: rgb(255, 5, 5);
 $bg-modal: rgba(0,0,0,.4);
+$color-sidebar: rgba(#000000, .4);
 
 $input-focus-shadow: 0 0 0 .15rem rgba(#007bff, .25);
 $form-shadow: 5px 5px 15px $color-dark-20;
@@ -38,6 +41,7 @@ $nav-size: 1.5rem;          // 24px
 $large-size: 1.25rem;       // 20px
 $icon-size: 1.25rem;        // 20px
 $low-size: .875rem;         // 14px
+$table-size1: .875rem;      // 14px
 $table-size2: .625rem;      // 10px
 
 $btn-border-radius: 4px;
@@ -45,6 +49,7 @@ $modal-border-radius: 4px;
 
 $table-border: 1px solid $color-dark;
 $btn-border: 1px solid $color-dark-20;
+$border-filter: 2px solid rgba(#44449c, .5);
 $alert-border: 1px solid transparent;
 
 $btn-height: 2.375rem;

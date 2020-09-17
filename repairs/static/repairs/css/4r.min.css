@@ -174,34 +174,6 @@ ol.table-conteiner {
           text-decoration-style: solid;
   background-color: #DDEDF4; }
 
-.pagination-block {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  padding: 1.25rem; }
-  .pagination-block select {
-    height: 1.875rem;
-    -ms-flex-preferred-size: 8rem;
-        flex-basis: 8rem;
-    -webkit-box-flex: 0;
-        -ms-flex-positive: 0;
-            flex-grow: 0;
-    border-radius: 4px;
-    border: 1px solid rgba(204, 204, 204, 0.5);
-    background-color: #E4BF3F; }
-
 @media screen and (min-width: 576px) {
   ol.table-conteiner {
     display: grid;
@@ -212,6 +184,14 @@ ol.table-conteiner {
     border-top: 1px solid #212221;
     grid-template-columns: 1fr;
     grid-gap: 0; }
+    ol.table-conteiner:not(.short-form) {
+      font-size: 0.625rem; }
+      ol.table-conteiner:not(.short-form) .attribute {
+        padding: 2px; }
+    ol.table-conteiner.short-form {
+      font-size: 0.875rem; }
+      ol.table-conteiner.short-form .attribute {
+        padding: 4px; }
     ol.table-conteiner .item-conteiner:first-child {
       display: grid !important; }
       ol.table-conteiner .item-conteiner:first-child .attribute {
@@ -243,7 +223,6 @@ ol.table-conteiner {
   .attribute {
     border-right: 1px solid #212221;
     border-bottom: 1px solid #212221;
-    padding: 2px;
     overflow: hidden !important;
     white-space: nowrap !important;
     text-overflow: ellipsis !important; }

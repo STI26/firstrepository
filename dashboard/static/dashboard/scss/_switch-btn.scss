@@ -1,0 +1,61 @@
+// Switch button
+// <input type="checkbox" class="switch">
+input[type="checkbox"] {
+	-moz-appearance:initial; // Hack for Firefox Browsers
+
+	&.switch {
+		height: 14px;
+		width: 24px;
+		position: relative;
+		display: inline-block;
+		vertical-align: text-bottom;
+		cursor: pointer;
+
+		&::before {
+			position: absolute;
+			background-color: $btn-color-default;
+			font-size: $table-size2;
+			font-weight: bold;
+			content: "";
+			color: $white;
+			text-align: left;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			height: 14px;
+			width: 24px;
+			border-radius: 14px;
+			@include transition(.3s ease-in-out);
+		}
+
+		&::after {
+			position: absolute;
+			content: "";
+			background-color: $white;
+			height: 10px;
+			left: 2px;
+			top: 2px;
+			width: 10px;
+			border-radius: 50%;
+			@include transition(.3s ease-in-out);
+		}
+
+		&:checked::before {
+			content: "\00a0\2713";
+			background-color: $input-color-active;
+		}
+
+		&:checked::after {
+			@include transform(translateX(10px));
+		}
+
+		&:focus::before {
+			box-shadow: $input-focus-shadow;
+		}
+
+		& + label {
+			font-size: $low-size;
+		}
+	}
+}

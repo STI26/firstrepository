@@ -1,8 +1,7 @@
 from datetime import datetime
 from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
-from django.db.models import Max
-from django.apps import apps
+from django.db.models import Q
 from repairs.models import (Departments, Equipment, Locations)
 from toners.models import (NamesOfTonerCartridge, Statuses,
                            TonerCartridges, TonerCartridgesLog)
@@ -16,6 +15,7 @@ class DataToners(object):
     save() - Save current row in database.
     remove() - Remove current row in database.
     move() - Save movement toner-cartridge in log.
+    getPrinterModels() - Get all printer models.
 
 
     Use 'action' for select method.
@@ -41,48 +41,75 @@ class DataToners(object):
         Format:
         self.data.number - number of rows returned(0 = all rows); type: int
         self.data.currentPage - current page; type: int
-        self.data.names - filtration by type of toner-cartridges;
-                          type: list
+        self.data.type - filtration by type of toner-cartridges; type: str
+        self.data.printer - filtration by printer; type: dict
         self.data.statuses - filtration by statuses of toner-cartridges;
-                          type: list
+                             type: list
 
         Return:
         {toners: toners data, paginator: paginator data, time: current time}
         """
 
-        if self.data.get('names', None) is not None:
-            filter = {'names__in': self.data['names']}
+        if self.data.get('type', None) is not None:
+            filter = {'names__in': self._getNamesIDByName(self.data['type'])}
+        elif self.data.get('printer', None) is not None:
+            filter = {
+                'names__in': self._getNamesIDByPrinter(self.data['printer'])
+            }
         else:
             filter = {}
 
         # Get toner-cartridges by type
-        cartridges = TonerCartridges.objects \
-            .filter(is_deleted=False, **filter).values()
+        cartridges = TonerCartridges.objects.filter(
+            is_deleted=False, **filter,
+        ).prefetch_related(
+            'names',
+        )
 
-        # Get the latest status of toner-cartridges
-        for cartridge in cartridges:
+        # Convert an instance to list of dictionaries
+        cartridgesList = []
+        for crt in cartridges:
+            row = {'id': crt.id,
+                   'prefix': crt.prefix,
+                   'number': crt.number,
+                   'owner': crt.owner.short_name,
+                   'type': [x[0] for x in crt.names.all().values_list('name')]}
+
+            # Get latest status
             try:
                 lastStatus = TonerCartridgesLog.objects \
-                    .filter(toner_cartridge=cartridge['id']) \
-                    .latest('date')
+                    .filter(toner_cartridge__id=row['id']) \
+                    .values(
+                        'date',
+                        'location__office',
+                        'status__id',
+                        'status__name',
+                        'status__logo',
+                        'note'
+                    ).latest('date')
+                # Add latest status
+                row.update(lastStatus)
             except TonerCartridgesLog.DoesNotExist:
                 lastStatus = None
+                cartridgesList.append(row)
+                continue
 
-            if lastStatus is not None:
-                fields = ['date', 'location', 'status', 'note']
-                cartridge.update(model_to_dict(lastStatus, fields))
-
-            statuses = self.data.get('statuses', None)
-            # Remove unnecessary items
-            if statuses is not None and \
-               cartridge.get('status') not in statuses:
-                cartridges.remove(cartridge)
+            # Skip unnecessary items
+            statuses = self.data.get('statuses')
+            if statuses and row.get('status__id') in statuses:
+                cartridgesList.append(row)
 
         # Get current time
         time = datetime.now().strftime('%d.%m.%y %H:%M:%S')
 
+        # Show all repairs
+        if self.data['number'] == 0:
+            return {'toners': cartridgesList,
+                    'paginator': None,
+                    'time': time, }
+
         #  Show 'self.data['number']' toner-cartridges per page
-        paginator = Paginator(list(cartridges), self.data['number'])
+        paginator = Paginator(cartridgesList, self.data['number'])
         p = paginator.get_page(self.data['currentPage'])
 
         hasPrevious = p.has_previous()
@@ -101,7 +128,7 @@ class DataToners(object):
                 'paginator': paginator,
                 'time': time, }
 
-    def TonerLog(self):
+    def tonerLog(self):
         """Get the history of the current toner-cartridge."""
 
         # Split id
@@ -111,16 +138,40 @@ class DataToners(object):
             return {'status': False,
                     'message': f'Неверный формат ID.'}
 
-        # Get all records with the current id
-        log = TonerCartridgesLog.objects.filter(
+        # Get toner-cartridge by id
+        crt = TonerCartridges.objects.filter(
             is_deleted=False,
             prefix__iexact=prefix,
             number=number,
         )
+        # Returned fields
+        toner_cartridge = crt.values(
+            'id',
+            'owner__short_name',
+            'prefix',
+            'number',
+        ).first()
+        type = [x[0] for x in crt.first().names.all().values_list('name')]
+        toner_cartridge['type'] = ', '.join(type)
+
+        # Get all records with the toner-cartridge
+        log = TonerCartridgesLog.objects.filter(
+            is_deleted=False,
+            toner_cartridge=crt.first(),
+        )
+        if len(log) == 0:
+            return {'status': False,
+                    'message': 'Записи не найдены.', }
+
+        # Returned fields
+        fields = ['date', 'location__office',
+                  'status__name', 'status__logo',
+                  'note', ]
 
         return {'status': True,
                 'message': '',
-                'log': list(log.values()), }
+                'toner_cartridge': toner_cartridge,
+                'log': list(log.values(*fields)), }
 
     def save(self):
         """Save current row in database."""
@@ -183,6 +234,20 @@ class DataToners(object):
         return {'status': True,
                 'message': f'Запись №{new.id} успешно сохранена.'}
 
+    def getPrinterModels(self):
+        """Get all printer models."""
+
+        brand = self.data['brand']
+
+        models = Equipment.objects.filter(
+            is_deleted=False, brand__short_name__iexact=brand
+        ).filter(
+            Q(type__name__iexact='принтер') | Q(type__name__iexact='МФУ')
+        )
+
+        return {'status': True,
+                'models': list(models.values('model'))}
+
     def _splitID(self, id):
         """Split id into prefix and number."""
 
@@ -197,3 +262,29 @@ class DataToners(object):
             return None
 
         return prefix, number
+
+    def _getNamesIDByName(self, name):
+        """Get list namesOfTonerCartridge by name."""
+
+        result = NamesOfTonerCartridge.objects.filter(
+            is_deleted=False,
+            name=name
+        )
+
+        return result
+
+    def _getNamesIDByPrinter(self, printer):
+        """Get list namesOfTonerCartridge by printer."""
+
+        printers = Equipment.objects.filter(
+            is_deleted=False,
+            brand__short_name__iexact=printer['brand'],
+            model__iexact=printer['model'],
+        )
+
+        result = NamesOfTonerCartridge.objects.filter(
+            is_deleted=False,
+            printers__in=printers,
+        )
+
+        return result
