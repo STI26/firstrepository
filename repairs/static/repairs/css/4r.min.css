@@ -195,9 +195,7 @@ ol.table-conteiner {
     ol.table-conteiner .item-conteiner:first-child {
       display: grid !important; }
       ol.table-conteiner .item-conteiner:first-child .attribute {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
+        display: grid;
         font-weight: bold;
         -webkit-box-align: center;
             -ms-flex-align: center;

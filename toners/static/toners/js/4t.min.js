@@ -12,7 +12,6 @@ const loadToners = (page = 1) => {
       obj[key] = value;
       let filter = '';
       if (typeof value === 'object') {
-        console.log('objjj');
         Object.entries(value).forEach(([k, v]) => {
           filter += `${v}; `;
         });
@@ -64,6 +63,8 @@ const loadToners = (page = 1) => {
         fragment.appendChild(row);
       });
       table.appendChild(fragment);
+
+      showPagination(page, data.paginator, 5);
       document.querySelector('#db-time-update').innerHTML = data.time;
     })
     .catch(error => {
@@ -164,6 +165,155 @@ const toggleStatus = () => {
   topFilterSettings.update();
   loadToners();
 };
+/* Open new form for change location and status toner-cartridge */
+const moveToner = (id) => {
+  const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
+  const obj = {};
+  // Step 1 of 3
+  this.selectDepartment = () => {
+    postData(url, {}, 'getDepartments')
+      .then(data => {
+        console.log(data);
+        obj.department = '';
+      })
+      .catch(error => {
+        infoBlock('error', error);
+      });
+  };
+  // Step 2 of 3
+  this.selectLocation = () => {
+    postData(url, obj, 'getlocations')
+      .then(data => {
+        console.log(data);
+        obj.location = '';
+      })
+      .catch(error => {
+        infoBlock('error', error);
+      });
+  };
+  // Step 3 of 3
+  this.selectStatus = (statuses) => {
+    obj.status = '';
+    postData(url, obj, 'move')
+      .then(data => {
+        if (data.status) {
+          infoBlock('success', data.message);
+        }
+        console.log(data);
+      })
+      .catch(error => {
+        infoBlock('error', error);
+      });
+  };
+};
+/* Open new form for add new toner-cartridge */
+const addToner = () => {
+  const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
+  postData(url, {}, 'openBlankForm')
+    .then(data => {
+      createRowForNewToner(data);
+    })
+    .catch(error => {
+      infoBlock('error', error);
+    });
+};
+/* Save new toner-cartridge */
+const saveToner = () => {
+  const obj = {
+    prefix: document.querySelector('#new-prefix').value,
+    number: document.querySelector('#new-number').value,
+    names: document.multipleSelect('new-type').getSelection()[0],
+    owner: document.multipleSelect('new-owner').getSelection()[0][0],
+  };
+  const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
+  postData(url, obj, 'save')
+    .then(data => {
+      if (data.status) {
+        infoBlock('success', data.message, 3000);
+        loadToners();
+      }
+    })
+    .catch(error => {
+      infoBlock('error', error);
+    });
+};
+/* Autocomplite toner-cartridge ID */
+const autocompliteID = (prefix, el) => {
+  const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
+  postData(url, {prefix: prefix.toLowerCase()}, 'getMaxID')
+    .then(data => {
+      if (data.maxID) {
+        el.value = data.maxID + 1;
+      } else {
+        el.value = 1;
+      }
+    })
+    .catch(error => {
+      infoBlock('error', error);
+    });
+};
+/* Create and fill new row on main table. (Preparing to add new toner-cartridge) */
+const createRowForNewToner = (data) => {
+  const html = `
+    <div class="attribute" data-name="#">+</div>
+    <div class="attribute" data-name="Префикс"><input class="attribute-input" type="text" id="new-prefix" placeholder="Префикс" required=""></div>
+    <div class="attribute" data-name="Номер"><input class="attribute-input" type="number" id="new-number" placeholder="Номер" required=""></div>
+    <div class="attribute" data-name="Тип"><input class="attribute-input" type="text" id="new-type" placeholder="Тип" required=""></div>
+    <div class="attribute" data-name="Владелец"><input class="attribute-input" type="text" id="new-owner" placeholder="Владелец" required=""></div>
+    <div class="attribute" data-name=""><button class="attribute-btn close">&#10006;</button></div>
+    <div class="attribute" data-name=""><button class="attribute-btn apply">&#10004;</button></div>
+    <div class="attribute" data-name="Типы" data-multiple-select-menu="new-type" style="display: none;"></div>
+    <div class="attribute" data-name="Отделы" data-multiple-select-menu="new-owner" style="display: none;"></div>
+  `;
+
+  if (document.querySelector('#new-toner-cartridge')) {
+    return;
+  }
+  const li = document.createElement('li');
+  li.classList.add('item', 'item-conteiner-new');
+  li.id = "new-toner-cartridge";
+  li.innerHTML = html;
+  document.querySelector('.table-conteiner.table-toners').appendChild(li);
+
+  // Add action for buttons
+  document.querySelector('#new-toner-cartridge .close').addEventListener('click', (event) => {
+    event.stopPropagation();
+    document.querySelector('#new-toner-cartridge').remove();
+  });
+  document.querySelector('#new-toner-cartridge .apply').addEventListener('click', (event) => {
+    event.stopPropagation();
+    const form = [
+      document.querySelector('#new-prefix'),
+      document.querySelector('#new-number'),
+      document.querySelector('#new-type'),
+      document.querySelector('#new-owner'),
+    ];
+    let formReady = true;
+    form.forEach((item) => {
+      if (!item.checkValidity()) {
+        formReady = false;
+        infoBlock('info', 'Заполните все поля.', 3000);
+        item.classList.add('not-filled');
+      } else {
+        item.classList.remove('not-filled');
+      }
+    });
+    if (formReady) {
+      saveToner();
+      document.querySelector('#new-toner-cartridge').remove();
+    }
+  });
+  // Add action for multipleSelect
+  document.multipleSelect('new-type').init();
+  document.multipleSelect('new-type').update(data.types);
+  document.multipleSelect('new-owner').init();
+  document.multipleSelect('new-owner').update(data.departments, true);
+  // Autocomplite toner-cartridge ID
+  document.querySelector('#new-prefix').addEventListener('keyup', function() {
+    const target = document.querySelector('#new-number');
+    autocompliteID(this.value, target);
+  });
+};
 /* Get or set side-filter settings */
 const sideFilterSettings = {
   update: (filter) => {
@@ -239,7 +389,7 @@ const defaultSettings = {
     }
   },
 }
-// Methods for table object
+// Methods for table object: open, close, initial(set close button)
 const dataTable = {
   tables: document.querySelectorAll('.table'),
   initial: function() {
@@ -329,8 +479,8 @@ docReady(function() {
   });
   // Table(main): Show log table of the selected toner-cartridge (double click on a row)
   document.querySelector('.table-conteiner.table-toners').addEventListener('dblclick', function(e) {
-    const el = e.target.closest('li.item-conteiner:not(:first-child)').querySelector(':first-child');
-    el && loadTonersLog(el.dataset.id);
+    const el = e.target.closest('li.item-conteiner:not(:first-child)');
+    el && loadTonersLog(el.querySelector(':first-child').dataset.id);
   });
   // Sidebar: Show dropdown
   document.querySelectorAll('.sidebar-dropdown-btn').forEach((item, i) => {
@@ -342,12 +492,25 @@ docReady(function() {
   document.querySelectorAll('[name=brand]').forEach((item, i) => {
     item.addEventListener('click', function() {
       getPrinterModels(item.innerHTML);
-    })
+    });
+  });
+  // Sidebar: Select type
+  document.querySelectorAll('[name=type]').forEach((item, i) => {
+    item.addEventListener('click', function() {
+      sideFilterSettings.update(item.innerHTML);
+      loadToners();
+    });
   });
   // Filter: Update status
   document.querySelectorAll('.filter .switch').forEach((item, i) => {
     item.addEventListener('click', toggleStatus);
   });
-
+  // Table: Pagigation buttons
+  document.querySelector('.pagination').addEventListener('click', (e) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const n = e.target.closest('a');
+    n && loadToners(n.dataset.page);
+  });
 
 });

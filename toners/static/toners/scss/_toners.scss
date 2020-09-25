@@ -18,7 +18,9 @@
     align-items: center;
 
     #db-time-update {
+      display: none;
       color: $white;
+      padding-right: 2px;
     }
   }
   .filter-models {
@@ -122,9 +124,44 @@ ol.table-conteiner {
   text-decoration-style: solid;
   background-color: $color-light;
 }
+// New toner-cartridge
+.attribute-input {
+  justify-self: stretch;
+  align-self: stretch;
+  border-width: 0;
+  background-color: $color-light;
+  &.not-filled {
+    background-color: $alert-bg-error;
+  }
+  &:focus {
+    background-color: $color-light-70;
+    color: $input-color-active;
+  }
+}
+.attribute-btn {
+  justify-self: stretch;
+  align-self: stretch;
+  border-width: 0;
+  background-color: $btn-color-default;
+  &.close:hover {
+    color: $icon-color-close;
+  }
+  &.apply:hover {
+    color: $icon-color-apply;
+  }
+}
 
 // Tablet+ version
 @include tablet {
+  .main-flex .content-block .filter {
+    div:nth-child(2) {
+      flex: 1;
+      text-align: right;
+    }
+    #db-time-update {
+      display: inline;
+    }
+  }
   ol.table-conteiner {
     border-left: $table-border;
     border-top: $table-border;
@@ -138,7 +175,7 @@ ol.table-conteiner {
         display: grid!important;
 
         .attribute {
-          display: flex;
+          display: grid;
           font-weight: bold;
           align-items: center;
           text-overflow: initial!important;
@@ -156,6 +193,24 @@ ol.table-conteiner {
     .item-conteiner {
       display: grid;
       grid-template-columns: 2rem 4fr 4fr 1fr 2fr;
+      grid-template-rows: auto;
+
+      .attribute.modifies {
+        grid-column: 1 / 6;
+      }
+    }
+    .item-conteiner-new {
+      display: grid;
+      grid-template-columns: 2rem 1fr 1fr 1fr 1fr 2rem 2rem;
+      grid-template-rows: auto;
+
+      [data-multiple-select-menu] {
+        grid-column: 1 / 8;
+      }
+      .attribute:not(:first-child) {
+        padding: 0!important;
+        grid-template-columns: auto;
+      }
     }
   }
   .table-toners-log {

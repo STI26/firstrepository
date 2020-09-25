@@ -90,7 +90,7 @@ function loadRepairs(page=1) {
       });
       table.appendChild(fragment);
 
-      showPagination(page, data.paginator, 5)
+      showPagination(page, data.paginator, 5);
       document.querySelector('#db-time-update').innerText = data.time;
     })
     .catch(error => {

@@ -78,7 +78,7 @@ ol.table-conteiner {
         display: grid!important;
 
         .attribute {
-          display: flex;
+          display: grid;
           font-weight: bold;
           align-items: center;
           text-overflow: initial!important;

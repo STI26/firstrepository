@@ -1,0 +1,50 @@
+// Switch button
+// <input type="checkbox" class="check-btn">
+ul.multiple-select {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	font-size: $low-size;
+	background-color: $color-light-20;
+
+	li {
+		display: contents;
+
+		input[type="checkbox"] {
+			-moz-appearance:initial; // Hack for Firefox Browsers
+
+			&.check-btn {
+				height: 0;
+				width: 0;
+				position: relative;
+				display: inline-block;
+				vertical-align: text-bottom;
+				cursor: pointer;
+
+				&:checked + label {
+					border-color: $input-color-focus;
+					background-color: $accent-color;
+				}
+
+				&:hover + label {
+					border-color: $input-color-focus;
+					background-color: $accent-color;
+				}
+
+				&:focus + label {
+					box-shadow: $input-focus-shadow;
+				}
+
+				& + label {
+					border: $border-filter;
+					border-radius: $large-size;
+					background-color: $color-light;
+					font-weight: bold;
+					padding: 1px;
+					margin: 1px;
+					cursor: pointer;
+				}
+			}
+		}
+	}
+}

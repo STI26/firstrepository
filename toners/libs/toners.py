@@ -1,7 +1,6 @@
 from datetime import datetime
 from django.core.paginator import Paginator
-from django.forms.models import model_to_dict
-from django.db.models import Q
+from django.db.models import Q, Max
 from repairs.models import (Departments, Equipment, Locations)
 from toners.models import (NamesOfTonerCartridge, Statuses,
                            TonerCartridges, TonerCartridgesLog)
@@ -15,6 +14,8 @@ class DataToners(object):
     save() - Save current row in database.
     remove() - Remove current row in database.
     move() - Save movement toner-cartridge in log.
+    openBlankForm() - Preparing a form for adding new toner-cartridge.
+    getMaxID() - Get max number of toner-cartridge with the current prefix.
     getPrinterModels() - Get all printer models.
 
 
@@ -103,28 +104,14 @@ class DataToners(object):
         time = datetime.now().strftime('%d.%m.%y %H:%M:%S')
 
         # Show all repairs
-        if self.data['number'] == 0:
+        if int(self.data['number']) == 0:
             return {'toners': cartridgesList,
                     'paginator': None,
                     'time': time, }
 
-        #  Show 'self.data['number']' toner-cartridges per page
-        paginator = Paginator(cartridgesList, self.data['number'])
-        p = paginator.get_page(self.data['currentPage'])
+        dataPage, paginator = self._getPagination(cartridgesList)
 
-        hasPrevious = p.has_previous()
-        previousPageNumber = p.previous_page_number() if hasPrevious else None
-        hasNext = p.has_next()
-        nextPageNumber = p.next_page_number() if hasNext else None
-        numPages = paginator.num_pages
-
-        paginator = {'hasPrevious': hasPrevious,
-                     'previousPageNumber': previousPageNumber,
-                     'hasNext': hasNext,
-                     'nextPageNumber': nextPageNumber,
-                     'numPages': numPages, }
-
-        return {'toners': p.object_list,
+        return {'toners': dataPage,
                 'paginator': paginator,
                 'time': time, }
 
@@ -177,21 +164,17 @@ class DataToners(object):
         """Save current row in database."""
 
         new = TonerCartridges(
-            prefix=self.data['prefix'],
-            number=self.data['number'],
+            prefix=self.data['prefix'].upper(),
+            number=int(self.data['number']),
             owner=Departments.objects.get(pk=self.data['owner']),
         )
 
         new.save()
         names = []
         for nameID in self.data['names']:
-            name = NamesOfTonerCartridge.objects.get(pk=nameID)
+            name = NamesOfTonerCartridge.objects.get(pk=int(nameID))
             names.append(name)
         new.names.set(names)
-
-        # Save toner-cartridge in log
-        if self.data.get('log'):
-            self.move(self.data['log'])
 
         return {'status': True,
                 'message': f'Запись №{new.id} успешно сохранена.'}
@@ -215,24 +198,42 @@ class DataToners(object):
         return {'status': True,
                 'message': f'Запись №{id} удалена.'}
 
-    def move(self, data=None):
+    def move(self):
         """Save movement toner-cartridge in log."""
 
-        if data is None:
-            data = self.data
-
         new = TonerCartridgesLog.objects.create(
-            data=data['date'],
+            data=self.data['date'],
             toner_cartridge=TonerCartridges.objects.get(
-                pk=data['toner_cartridge']
+                pk=self.data['toner_cartridge']
             ),
-            location=Locations.objects.get(pk=data['location']),
-            status=Statuses.objects.get(pk=data['status']),
-            note=data['note'],
+            location=Locations.objects.get(pk=self.data['location']),
+            status=Statuses.objects.get(pk=self.data['status']),
+            note=self.data['note'],
         )
 
         return {'status': True,
                 'message': f'Запись №{new.id} успешно сохранена.'}
+
+    def openBlankForm(self):
+        """Preparing a form for adding new toner-cartridge."""
+
+        types = NamesOfTonerCartridge.objects.filter(is_deleted=False) \
+            .values('id', 'name')
+        departments = Departments.objects.filter(is_deleted=False) \
+            .values('id', 'name', 'short_name')
+
+        return {'types': list(types),
+                'departments': list(departments), }
+
+    def getMaxID(self):
+        """Get max number of toner-cartridge with the current prefix."""
+
+        id = TonerCartridges.objects.filter(
+            is_deleted=False,
+            prefix__iexact=self.data['prefix'],
+        ).aggregate(Max('number'))
+
+        return {'maxID': id['number__max']}
 
     def getPrinterModels(self):
         """Get all printer models."""
@@ -288,3 +289,24 @@ class DataToners(object):
         )
 
         return result
+
+    def _getPagination(self, cartridgesList):
+        """Get pagination info"""
+
+        #  Show 'self.data['number']' toner-cartridges per page
+        paginator = Paginator(cartridgesList, self.data['number'])
+        p = paginator.get_page(self.data['currentPage'])
+
+        hasPrevious = p.has_previous()
+        previousPageNumber = p.previous_page_number() if hasPrevious else None
+        hasNext = p.has_next()
+        nextPageNumber = p.next_page_number() if hasNext else None
+        numPages = paginator.num_pages
+
+        paginator = {'hasPrevious': hasPrevious,
+                     'previousPageNumber': previousPageNumber,
+                     'hasNext': hasNext,
+                     'nextPageNumber': nextPageNumber,
+                     'numPages': numPages, }
+
+        return p.object_list, paginator

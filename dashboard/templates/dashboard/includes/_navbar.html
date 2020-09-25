@@ -5,7 +5,7 @@
     <li class="nav-item {% if request.path == '/' %}active{% endif %}">
       <a href="{% url 'index' %}">ТОжурнал</a>
     </li>
-    <li class="nav-item {% if request.path == '/docs/' %}active{% endif %}">
+    <li class="nav-item {% if request.path == '/docs/' %}active{% endif %}" style="display: none">
       <a href="#">
         <i data-feather="file-text"></i>
         Акты

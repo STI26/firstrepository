@@ -647,3 +647,44 @@ input[type="checkbox"] {
               box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.25); }
     input[type="checkbox"].switch + label {
       font-size: 0.875rem; }
+
+ul.multiple-select {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  font-size: 0.875rem;
+  background-color: rgba(220, 236, 244, 0.2); }
+  ul.multiple-select li {
+    display: contents; }
+    ul.multiple-select li input[type="checkbox"] {
+      -moz-appearance: initial; }
+      ul.multiple-select li input[type="checkbox"].check-btn {
+        height: 0;
+        width: 0;
+        position: relative;
+        display: inline-block;
+        vertical-align: text-bottom;
+        cursor: pointer; }
+        ul.multiple-select li input[type="checkbox"].check-btn:checked + label {
+          border-color: rgba(68, 68, 156, 0.7);
+          background-color: #E4BF3F; }
+        ul.multiple-select li input[type="checkbox"].check-btn:hover + label {
+          border-color: rgba(68, 68, 156, 0.7);
+          background-color: #E4BF3F; }
+        ul.multiple-select li input[type="checkbox"].check-btn:focus + label {
+          -webkit-box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.25);
+                  box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.25); }
+        ul.multiple-select li input[type="checkbox"].check-btn + label {
+          border: 2px solid rgba(68, 68, 156, 0.5);
+          border-radius: 1.25rem;
+          background-color: #DDEDF4;
+          font-weight: bold;
+          padding: 1px;
+          margin: 1px;
+          cursor: pointer; }
