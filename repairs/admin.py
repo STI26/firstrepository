@@ -1,5 +1,8 @@
 from django.contrib import admin
 
+from .forms import (DepartmentsForm, EmployeesForm,
+                    BuildingsForm, LocationsForm,
+                    BrandsForm, RepairsForm)
 from .models import (Departments, Employees,
                      Buildings, Locations,
                      Brands, TypeOfEquipment,
@@ -8,10 +11,12 @@ from .models import (Departments, Employees,
 
 
 class DepartmentsAdmin(admin.ModelAdmin):
+    form = DepartmentsForm
     list_display = ('name', 'short_name',)
 
 
 class EmployeesAdmin(admin.ModelAdmin):
+    form = EmployeesForm
     list_display = ('l_name', 'f_name', 'department',)
     search_fields = ['l_name']
     list_filter = ('department__short_name',)
@@ -22,15 +27,16 @@ class TechnicalGroupsAdmin(admin.ModelAdmin):
 
 
 class BuildingsAdmin(admin.ModelAdmin):
-    pass
+    form = BuildingsForm
 
 
 class LocationsAdmin(admin.ModelAdmin):
-    pass
+    form = LocationsForm
+    list_filter = ('department__short_name',)
 
 
 class BrandsAdmin(admin.ModelAdmin):
-    pass
+    form = BrandsForm
 
 
 class TypeOfEquipmentAdmin(admin.ModelAdmin):
@@ -42,6 +48,7 @@ class EquipmentAdmin(admin.ModelAdmin):
 
 
 class RepairsAdmin(admin.ModelAdmin):
+    form = RepairsForm
     list_display = ('id', 'date_in', 'location', 'equipment', 'date_out')
 
 

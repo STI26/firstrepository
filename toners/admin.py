@@ -2,11 +2,13 @@ from django.contrib import admin
 from django.db.models import Q
 
 from repairs.models import Equipment
+from .forms import NamesOfTonerCartridgeForm, TonerCartridgesForm, StatusesForm
 from .models import (NamesOfTonerCartridge, Statuses,
                      TonerCartridges, TonerCartridgesLog)
 
 
 class NamesOfTonerCartridgeAdmin(admin.ModelAdmin):
+    form = NamesOfTonerCartridgeForm
     filter_horizontal = ['printers']
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
@@ -18,10 +20,11 @@ class NamesOfTonerCartridgeAdmin(admin.ModelAdmin):
 
 
 class StatusesAdmin(admin.ModelAdmin):
-    pass
+    form = StatusesForm
 
 
 class TonerCartridgesAdmin(admin.ModelAdmin):
+    form = TonerCartridgesForm
     filter_horizontal = ['names']
 
 

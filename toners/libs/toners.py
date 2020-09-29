@@ -14,6 +14,9 @@ class DataToners(object):
     save() - Save current row in database.
     remove() - Remove current row in database.
     move() - Save movement toner-cartridge in log.
+    getDepartments() - Get departments.
+    getLocationsAndStatuses() - Get locations with current department.
+                                Get all statuses.
     openBlankForm() - Preparing a form for adding new toner-cartridge.
     getMaxID() - Get max number of toner-cartridge with the current prefix.
     getPrinterModels() - Get all printer models.
@@ -118,19 +121,23 @@ class DataToners(object):
     def tonerLog(self):
         """Get the history of the current toner-cartridge."""
 
-        # Split id
+        # Get toner-cartridge by id
         try:
-            prefix, number = self._splitID(self.data.get('id', ''))
-        except TypeError:
+            crt = TonerCartridges.objects.filter(
+                is_deleted=False,
+                pk=int(self.data['id'])
+            )
+        except KeyError:
+            return {'status': False,
+                    'message': f'ID не обнаружен.'}
+        except ValueError:
             return {'status': False,
                     'message': f'Неверный формат ID.'}
 
-        # Get toner-cartridge by id
-        crt = TonerCartridges.objects.filter(
-            is_deleted=False,
-            prefix__iexact=prefix,
-            number=number,
-        )
+        if len(crt) != 1:
+            return {'status': False,
+                    'message': f'Запись №{self.data["id"]} не найдена.'}
+
         # Returned fields
         toner_cartridge = crt.values(
             'id',
@@ -182,18 +189,22 @@ class DataToners(object):
     def remove(self):
         """Remove current row in database."""
 
-        # Split id
         try:
-            prefix, number = self._splitID(self.data.get('id', ''))
-        except TypeError:
+            toner = TonerCartridges.objects.filter(
+                pk=int(self.data['id'])
+            )
+        except KeyError:
+            return {'status': False,
+                    'message': f'ID не обнаружен.'}
+        except ValueError:
             return {'status': False,
                     'message': f'Неверный формат ID.'}
 
-        toner = TonerCartridges.objects.filter(prefix=prefix, number=number)
-        count = toner.update(is_deleted=True)
-        if count == 0:
+        if len(toner) != 1:
             return {'status': False,
-                    'message': f'Запись №{prefix}{number} не найдена.'}
+                    'message': f'Запись №{self.data["id"]} не найдена.'}
+
+        toner.update(is_deleted=True)
 
         return {'status': True,
                 'message': f'Запись №{id} удалена.'}
@@ -202,17 +213,38 @@ class DataToners(object):
         """Save movement toner-cartridge in log."""
 
         new = TonerCartridgesLog.objects.create(
-            data=self.data['date'],
+            date=self.data['date'],
             toner_cartridge=TonerCartridges.objects.get(
-                pk=self.data['toner_cartridge']
+                pk=int(self.data['toner_cartridge'])
             ),
-            location=Locations.objects.get(pk=self.data['location']),
-            status=Statuses.objects.get(pk=self.data['status']),
-            note=self.data['note'],
+            location=Locations.objects.get(pk=int(self.data['location'])),
+            status=Statuses.objects.get(pk=int(self.data['status'])),
+            note=self.data.get('note', ''),
         )
 
         return {'status': True,
-                'message': f'Запись №{new.id} успешно сохранена.'}
+                'message': f'Запись №{new.id} успешно сохранена.', }
+
+    def getDepartments(self):
+        """Get all departments."""
+
+        departments = Departments.objects.filter(is_deleted=False) \
+            .values('id', 'name', 'short_name')
+
+        return {'departments': list(departments)}
+
+    def getLocationsAndStatuses(self):
+        """Get locations with current department. Get all statuses."""
+
+        d = Departments.objects.filter(pk=self.data['department']).first()
+
+        locations = Locations.objects.filter(is_deleted=False, department=d) \
+            .values('id', 'office')
+        statuses = Statuses.objects.filter(is_deleted=False) \
+            .values('id', 'name')
+
+        return {'locations': list(locations),
+                'statuses': list(statuses), }
 
     def openBlankForm(self):
         """Preparing a form for adding new toner-cartridge."""
@@ -247,22 +279,7 @@ class DataToners(object):
         )
 
         return {'status': True,
-                'models': list(models.values('model'))}
-
-    def _splitID(self, id):
-        """Split id into prefix and number."""
-
-        id = re.match(
-            r'([a-z]+)([0-9]+)',
-            id,
-            re.IGNORECASE,
-        )
-        if id:
-            prefix, number = id.groups()
-        else:
-            return None
-
-        return prefix, number
+                'models': list(models.values('model')), }
 
     def _getNamesIDByName(self, name):
         """Get list namesOfTonerCartridge by name."""

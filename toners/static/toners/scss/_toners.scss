@@ -102,7 +102,7 @@ ol.table-conteiner {
   grid-gap: 10px;
   font-size: $table-size2;
 
-  li:first-child {
+  & + li:first-child {
     display: none;
   }
   .attribute::before {
@@ -196,6 +196,7 @@ ol.table-conteiner {
       grid-template-rows: auto;
 
       .attribute.modifies {
+        display: block;
         grid-column: 1 / 6;
       }
     }

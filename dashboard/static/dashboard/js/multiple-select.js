@@ -37,22 +37,29 @@
       return [itemIDs, itemNames];
     };
 
-    this.update = (data, radioMode=false) => {
+    this.update = (data, radioMode=false, btnFunc=false) => {
       multipleSelectMenu.innerHTML = '';
       const fr = new DocumentFragment();
       const parser = new DOMParser();
       const ul = document.createElement('ul');
       ul.classList.add('multiple-select');
 
-      data.forEach((item, i) => {
-        const id = `${elementID}-${item.id}`;
+      data.forEach((item) => {
+        item = Object.values(item);
+        // length 2: item[0] - dataset.id; item[1] - innerHTML
+        // length 3: item[0] - dataset.id; item[1] - title; item[2] - innerHTML
+        const id = `${elementID}-${item[0]}`;
         const btn = parser.parseFromString(template, 'text/html');
 
         btn.querySelector('input').id = id;
-        btn.querySelector('input').value = item.id;
+        btn.querySelector('input').value = item[0];
         btn.querySelector('input').addEventListener('click', (event) => {
           event.stopPropagation();
-          multipleSelectInput.value = getSelection(true, multipleSelectMenu);
+          if (btnFunc) {
+            btnFunc();
+          } else {
+            multipleSelectInput.value = getSelection(true, multipleSelectMenu);
+          }
         });
 
         if (radioMode) {
@@ -65,11 +72,11 @@
         }
 
         btn.querySelector('label').htmlFor = id;
-        if (item.short_name) {
-          btn.querySelector('label').innerHTML = item.short_name;
-          btn.querySelector('label').title = item.name;
+        if (item[2]) {
+          btn.querySelector('label').innerHTML = item[2];
+          btn.querySelector('label').title = item[1];
         } else {
-          btn.querySelector('label').innerHTML = item.name;
+          btn.querySelector('label').innerHTML = item[1];
         }
 
         fr.appendChild(btn.querySelector('li'));

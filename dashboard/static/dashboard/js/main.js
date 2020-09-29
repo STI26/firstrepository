@@ -285,7 +285,7 @@ const infoBlock = (type, message, timeout=null) => {
   // css style type: error, success, info
   const fr = new DocumentFragment();
   const span = document.createElement('span');
-  span.innerHTML = 'x';
+  span.innerHTML = '&#10006;';
   span.addEventListener('click', (e) => {
     e.stopPropagation();
     e.target.parentNode.parentNode.removeChild(e.target.parentNode);
@@ -301,7 +301,7 @@ const infoBlock = (type, message, timeout=null) => {
   const li = document.createElement('li');
   li.classList.add('flash', `flash-${type}`);
   li.innerHTML = message;
-  li.appendChild(span);
+  li.insertBefore(span, li.childNodes[0]);
   const ib = document.querySelector('#info-block');
   if (document.contains(ib)) {
     fr.appendChild(li);

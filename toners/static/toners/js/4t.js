@@ -1,4 +1,9 @@
 const loadToners = (page = 1) => {
+  // Remove form for new toner-cartridge
+  if (document.querySelector('#new-toner-cartridge')) {
+    document.querySelector('#new-toner-cartridge').remove();
+  }
+
   const obj = {
     number: document.querySelector('#rows-per-page').value,
     currentPage: page,
@@ -39,7 +44,7 @@ const loadToners = (page = 1) => {
         const row = rows[0].cloneNode(true);
         const id = `${item.prefix}${item.number}`;
         row.querySelector('.attribute').innerHTML = i + 1;
-        row.querySelector('.attribute').dataset.id = id;
+        row.querySelector('.attribute').dataset.id = item.id;
         row.querySelector('.attribute.toner-id').innerHTML = id;
         row.querySelector('.attribute.toner-id').title = id;
         row.querySelector('.attribute.toner-type').innerHTML = item.type.join(', ');
@@ -68,7 +73,7 @@ const loadToners = (page = 1) => {
       document.querySelector('#db-time-update').innerHTML = data.time;
     })
     .catch(error => {
-      infoBlock('error', error);
+      infoBlock('error', error, 10000);
     });
 };
 const loadTonersLog = (id) => {
@@ -77,7 +82,7 @@ const loadTonersLog = (id) => {
   postData(table.dataset.fetch, obj, 'tonerLog')
     .then(data => {
       if (!data.status) {
-        infoBlock('info', data.message, 3000);
+        infoBlock('error', data.message, 3000);
         return;
       }
       // Fill in the table header
@@ -113,7 +118,7 @@ const loadTonersLog = (id) => {
       dataTable.open('#table-toners-log');
     })
     .catch(error => {
-      infoBlock('error', error);
+      infoBlock('error', error, 10000);
     });
 };
 const toggleSidebar = () => {
@@ -136,7 +141,7 @@ const getPrinterModels = (brand) => {
       fillPrinterModelsBlock(data, brand);
     })
     .catch(error => {
-      infoBlock('error', error);
+      infoBlock('error', error, 10000);
     });
 };
 const fillPrinterModelsBlock = (data, brand) => {
@@ -168,43 +173,127 @@ const toggleStatus = () => {
 /* Open new form for change location and status toner-cartridge */
 const moveToner = (id) => {
   const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
-  const obj = {};
-  // Step 1 of 3
+  // Step 1 of 5
   this.selectDepartment = () => {
-    postData(url, {}, 'getDepartments')
+    if (document.querySelector('[data-multiple-select-menu=move-toner-cartridge]')) {
+      return;
+    }
+    const obj = {};
+    postData(url, obj, 'getDepartments')
       .then(data => {
-        console.log(data);
-        obj.department = '';
+        const activeRow = document.querySelector('.table-toners .table-active-row');
+
+        const div = document.createElement('div');
+        div.dataset.multipleSelectMenu = 'move-toner-cartridge';
+        div.classList.add('attribute', 'modifies');
+
+        activeRow.appendChild(div);
+        // Button action if select department
+        this.btnFunc = () => {
+          obj.department = document.multipleSelect('move-toner-cartridge').getSelection()[0][0];
+          // Start step 2
+          selectLocation(obj);
+        };
+        // Update multipleSelect
+        document.multipleSelect('move-toner-cartridge').update(data.departments, radioMode=true, btnFunc=btnFunc);
       })
       .catch(error => {
-        infoBlock('error', error);
+        infoBlock('error', error, 10000);
       });
   };
-  // Step 2 of 3
-  this.selectLocation = () => {
-    postData(url, obj, 'getlocations')
+  // Step 2 of 5
+  this.selectLocation = (obj) => {
+    postData(url, obj, 'getLocationsAndStatuses')
       .then(data => {
-        console.log(data);
-        obj.location = '';
+        if (data.locations.length === 0) {
+          infoBlock('info', 'В базе отсутствуют "комнаты" связанные с текущей службой. \
+                    Выберете другую службу либо добавте в текущею через панель администратора.', 3000);
+          return;
+        }
+        // Button action if select location
+        this.btnFunc = () => {
+          obj.location = document.multipleSelect('move-toner-cartridge').getSelection()[0][0];
+          // Start step 3
+          selectStatus(obj, data.statuses);
+        };
+        document.multipleSelect('move-toner-cartridge').update(data.locations, radioMode=true, btnFunc=btnFunc);
       })
       .catch(error => {
-        infoBlock('error', error);
+        infoBlock('error', error, 10000);
       });
   };
-  // Step 3 of 3
-  this.selectStatus = (statuses) => {
-    obj.status = '';
+  // Step 3 of 5
+  this.selectStatus = (obj, statuses) => {
+    if (statuses.length === 0) {
+      infoBlock('info', 'В базе отсутствуют "статусы". Вы можете добавте их через панель администратора.', 3000);
+      return;
+    }
+    // Button action if select status
+    this.btnFunc = () => {
+      obj.status = document.multipleSelect('move-toner-cartridge').getSelection()[0][0];
+      // Start step 3
+      addNote(obj);
+    };
+    document.multipleSelect('move-toner-cartridge').update(statuses, radioMode=true, btnFunc=btnFunc);
+  };
+  // Step 4 of 5
+  this.addNote = (obj, statuses) => {
+    const menu = document.querySelector('[data-multiple-select-menu=move-toner-cartridge]');
+    menu.innerHTML = '';
+    const btnBlockHTML = `
+      <input type="text" id="toner-cartridge-log--note" value="" placeholder="Добавьте примечание" autocomplete="off" autofocus>
+      <button type="submit">&#10004;</button>
+    `;
+    const btnBlock = document.createElement('form');
+    btnBlock.classList.add('btn-block');
+    btnBlock.innerHTML = btnBlockHTML;
+    btnBlock.addEventListener('submit', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      obj.note = document.querySelector('#toner-cartridge-log--note').value;
+      saveObj(obj);
+    });
+    menu.appendChild(btnBlock);
+  };
+  // Step 5 of 5
+  this.saveObj = (obj) => {
+    obj.toner_cartridge = id;
+    obj.date = new Date();
     postData(url, obj, 'move')
       .then(data => {
         if (data.status) {
-          infoBlock('success', data.message);
+          infoBlock('success', data.message, 3000);
+          loadToners();
+        } else {
+          infoBlock('error', data.message, 10000);
         }
-        console.log(data);
+        document.querySelector('[data-multiple-select-menu=move-toner-cartridge]').remove();
       })
       .catch(error => {
-        infoBlock('error', error);
+        infoBlock('error', error, 10000);
       });
   };
+  // Start first step
+  selectDepartment();
+};
+/* Remove toner-cartridge */
+const removeToner = (id) => {
+  if (!window.confirm(`Вы действительно хотите удалить текущий картридж?`)) {
+    return;
+  }
+  const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
+  postData(url, {id: id}, 'remove')
+    .then(data => {
+      if (data.status) {
+        infoBlock('success', data.message, 3000);
+        loadToners();
+      } else {
+        infoBlock('error', data.message, 5000);
+      }
+    })
+    .catch(error => {
+      infoBlock('error', error, 10000);
+    });
 };
 /* Open new form for add new toner-cartridge */
 const addToner = () => {
@@ -214,7 +303,7 @@ const addToner = () => {
       createRowForNewToner(data);
     })
     .catch(error => {
-      infoBlock('error', error);
+      infoBlock('error', error, 10000);
     });
 };
 /* Save new toner-cartridge */
@@ -234,7 +323,7 @@ const saveToner = () => {
       }
     })
     .catch(error => {
-      infoBlock('error', error);
+      infoBlock('error', error, 10000);
     });
 };
 /* Autocomplite toner-cartridge ID */
@@ -249,7 +338,7 @@ const autocompliteID = (prefix, el) => {
       }
     })
     .catch(error => {
-      infoBlock('error', error);
+      infoBlock('error', error, 10000);
     });
 };
 /* Create and fill new row on main table. (Preparing to add new toner-cartridge) */
@@ -475,10 +564,23 @@ docReady(function() {
       }
     });
     const row = e.target.closest('li.item-conteiner:not(:first-child)');
+    // Remove change location menu
+    if (!row.querySelector('[data-multiple-select-menu=move-toner-cartridge]') &&
+        document.querySelector('[data-multiple-select-menu=move-toner-cartridge]')) {
+      document.querySelector('[data-multiple-select-menu=move-toner-cartridge]').remove();
+    }
+    // Select row
     row && row.classList.add('table-active-row');
   });
-  // Table(main): Show log table of the selected toner-cartridge (double click on a row)
+  // Table(main): Show form to add a new row to log table (double click on a row)
   document.querySelector('.table-conteiner.table-toners').addEventListener('dblclick', function(e) {
+    const el = e.target.closest('li.item-conteiner:not(:first-child)');
+    el && moveToner(el.querySelector(':first-child').dataset.id);
+  });
+  // Table(main): Show log table of the selected toner-cartridge (contextmenu click on a row)
+  document.querySelector('.table-conteiner.table-toners').addEventListener('contextmenu', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
     const el = e.target.closest('li.item-conteiner:not(:first-child)');
     el && loadTonersLog(el.querySelector(':first-child').dataset.id);
   });
