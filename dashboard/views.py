@@ -50,6 +50,11 @@ def logout_view(request):
     return redirect('login_view')
 
 
+def browser_not_supported(request):
+    if request.method == 'GET':
+        return render(request, 'dashboard/browsernotsupported.html')
+
+
 def contexts(request):
     """Load contexts"""
 

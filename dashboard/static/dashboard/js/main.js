@@ -330,7 +330,7 @@ const addTimeZone = (dt, toString=false, onlyDate=false) => {
     return d;
   }
   const date = (d.getDate() < 10 ? `0${d.getDate()}` : d.getDate());
-  const month = (d.getMonth() < 10 ? `0${d.getMonth() + 1}` : d.getMonth() + 1);
+  const month = (d.getMonth() < 9 ? `0${d.getMonth() + 1}` : d.getMonth() + 1);
   if (onlyDate) {
     return `${date}.${month}.${d.getFullYear()}`;
   }
