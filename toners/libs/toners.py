@@ -4,7 +4,6 @@ from django.db.models import Q, Max
 from repairs.models import (Departments, Equipment, Locations)
 from toners.models import (NamesOfTonerCartridge, Statuses,
                            TonerCartridges, TonerCartridgesLog)
-import re
 
 
 class DataToners(object):
@@ -212,18 +211,28 @@ class DataToners(object):
     def move(self):
         """Save movement toner-cartridge in log."""
 
-        new = TonerCartridgesLog.objects.create(
-            date=self.data['date'],
-            toner_cartridge=TonerCartridges.objects.get(
-                pk=int(self.data['toner_cartridge'])
-            ),
-            location=Locations.objects.get(pk=int(self.data['location'])),
-            status=Statuses.objects.get(pk=int(self.data['status'])),
-            note=self.data.get('note', ''),
-        )
+        toners = []
+        for toner in self.data['toner_cartridges']:
+            new = TonerCartridgesLog.objects.create(
+                date=self.data['date'],
+                toner_cartridge=TonerCartridges.objects.get(pk=int(toner)),
+                location=Locations.objects.get(pk=int(self.data['location'])),
+                status=Statuses.objects.get(pk=int(self.data['status'])),
+                note=self.data.get('note', ''),
+            )
+            toners.append(new.id)
+
+        if len(toners) == 1:
+            message = 'Запись №{} успешно сохранена.'.format(
+                ', '.join(map(str, toners))
+            )
+        else:
+            message = 'Записи №{} успешно сохранены.'.format(
+                ', '.join(map(str, toners))
+            )
 
         return {'status': True,
-                'message': f'Запись №{new.id} успешно сохранена.', }
+                'message': message, }
 
     def getDepartments(self):
         """Get all departments."""

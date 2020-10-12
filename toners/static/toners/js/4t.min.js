@@ -171,17 +171,21 @@ const toggleStatus = () => {
   loadToners();
 };
 /* Open new form for change location and status toner-cartridge */
-const moveToner = (id) => {
+const moveToner = () => {
   const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
+  const activeRows = document.querySelectorAll('.table-toners .table-active-row');
+  const tonerCartridges = Array.from(activeRows, x => x.firstElementChild.dataset.id);
   // Step 1 of 5
   this.selectDepartment = () => {
-    if (document.querySelector('[data-multiple-select-menu=move-toner-cartridge]')) {
+    if (document.querySelector('[data-multiple-select-menu=move-toner-cartridge]') ||
+        !document.querySelector('.table-toners .table-active-row')) {
       return;
     }
     const obj = {};
     postData(url, obj, 'getDepartments')
       .then(data => {
-        const activeRow = document.querySelector('.table-toners .table-active-row');
+        const activeRows = document.querySelectorAll('.table-toners .table-active-row');
+        const activeRow = activeRows[activeRows.length - 1];
 
         const div = document.createElement('div');
         div.dataset.multipleSelectMenu = 'move-toner-cartridge';
@@ -257,8 +261,10 @@ const moveToner = (id) => {
   };
   // Step 5 of 5
   this.saveObj = (obj) => {
-    obj.toner_cartridge = id;
+    obj.toner_cartridges = tonerCartridges;
     obj.date = new Date();
+    console.log('activeRows', activeRows);
+    console.log('obj', obj);
     postData(url, obj, 'move')
       .then(data => {
         if (data.status) {
@@ -403,6 +409,66 @@ const createRowForNewToner = (data) => {
     autocompliteID(this.value, target);
   });
 };
+/* Select rows in main table */
+function selectRowsInTable(e) {
+  let selectedRows;
+  if (e.shiftKey) {
+    selectedRows = document.querySelectorAll('.table-conteiner.table-toners li.item-conteiner.table-active-row');
+  } else if (e.ctrlKey || e.altKey) {
+    // Do nothing
+  } else {
+    // Unselect all rows
+    this.querySelectorAll('li.item-conteiner').forEach((item, i) => {
+      if (item.classList.contains('table-active-row')) {
+        item.classList.remove('table-active-row');
+      }
+    });
+  }
+  const row = e.target.closest('li.item-conteiner:not(:first-child)');
+  // Remove change location menu
+  if (row && !row.querySelector('[data-multiple-select-menu=move-toner-cartridge]') &&
+      document.querySelector('[data-multiple-select-menu=move-toner-cartridge]')) {
+    document.querySelector('[data-multiple-select-menu=move-toner-cartridge]').remove();
+  }
+  // Select row
+  const allRows = document.querySelectorAll('.table-conteiner.table-toners li.item-conteiner:not(:first-child)');
+  if (e.altKey) {
+    selectedRows = document.querySelectorAll('.table-conteiner.table-toners li.item-conteiner.table-active-row');
+    if (selectedRows.length !== 0) {
+      allRows.forEach((item) => {
+        item.classList.remove('table-active-row');
+      });
+    } else {
+      allRows.forEach((item) => {
+        item.classList.add('table-active-row');
+      });
+    }
+
+  } else if (selectedRows && row) {
+    const currentRow = parseInt(row.firstElementChild.innerHTML);
+    let currentRowFirst = false;
+    let firstSelectRow = parseInt(selectedRows[0].firstElementChild.innerHTML);
+    if (currentRow <= firstSelectRow) {
+      currentRowFirst = true;
+    }
+    for (let item of allRows) {
+      let number = parseInt(item.firstElementChild.innerHTML);
+      if (currentRowFirst && (number >= currentRow)) {
+        if (item.classList.contains('table-active-row')) {
+          break;
+        }
+        item.classList.add('table-active-row')
+      } else if (number >= firstSelectRow) {
+        item.classList.add('table-active-row')
+        if (number === currentRow) {
+          break;
+        }
+      }
+    }
+  } else if (row) {
+    row.classList.add('table-active-row');
+  }
+}
 /* Get or set side-filter settings */
 const sideFilterSettings = {
   update: (filter) => {
@@ -526,7 +592,7 @@ docReady(function() {
   document.querySelector('#move-row').addEventListener('click', () => {
     const row = document.querySelector('.table-conteiner.table-toners .table-active-row div:first-child');
     if (row) {
-      moveToner(row.dataset.id);
+      moveToner();
     } else {
       infoBlock('info', 'Нет выделенных строк.', 3000);
     }
@@ -556,26 +622,12 @@ docReady(function() {
     sideFilterSettings.clear();
     loadToners();
   });
-  // Table(main): Show the current row in table
-  document.querySelector('.table-conteiner.table-toners').addEventListener('click', function(e) {
-    this.querySelectorAll('li.item-conteiner').forEach((item, i) => {
-      if (item.classList.contains('table-active-row')) {
-        item.classList.remove('table-active-row');
-      }
-    });
-    const row = e.target.closest('li.item-conteiner:not(:first-child)');
-    // Remove change location menu
-    if (!row.querySelector('[data-multiple-select-menu=move-toner-cartridge]') &&
-        document.querySelector('[data-multiple-select-menu=move-toner-cartridge]')) {
-      document.querySelector('[data-multiple-select-menu=move-toner-cartridge]').remove();
-    }
-    // Select row
-    row && row.classList.add('table-active-row');
-  });
+  // Table(main): Select rows in table
+  document.querySelector('.table-conteiner.table-toners').addEventListener('click', selectRowsInTable);
   // Table(main): Show form to add a new row to log table (double click on a row)
   document.querySelector('.table-conteiner.table-toners').addEventListener('dblclick', function(e) {
     const el = e.target.closest('li.item-conteiner:not(:first-child)');
-    el && moveToner(el.querySelector(':first-child').dataset.id);
+    el && moveToner();
   });
   // Table(main): Show log table of the selected toner-cartridge (contextmenu click on a row)
   document.querySelector('.table-conteiner.table-toners').addEventListener('contextmenu', function(e) {
