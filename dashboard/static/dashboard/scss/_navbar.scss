@@ -2,6 +2,7 @@
   margin-top: .5rem;
 }
 ul.navbar {
+  box-shadow: $main-shadow;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;

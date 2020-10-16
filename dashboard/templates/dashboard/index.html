@@ -1,16 +1,35 @@
 {% extends "dashboard/layout.html" %}
+{% load static %}
 
 {% block title %}
 Главная
 {% endblock %}
 
-{% block main %}
-<!-- TODO: add index page -->
-<div class="main" style="background: lightblue; width: 100%; height:40px">
-
-</div>
+{% block head %}
+<link rel="stylesheet" href="{% static 'dashboard/css/chart.min.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'dashboard/css/4i.min.css' %}" type="text/css">
+<script src="{% static 'dashboard/js/chart.min.js' %}"></script>
+<script src="{% static 'dashboard/js/4i.min.js' %}" defer></script>
 {% endblock %}
 
-{% block js %}
-  <!-- <script src="../static/js/4i.js"></script> -->
+{% block main %}
+{% csrf_token %}
+<div class="context" id="charts" data-fetch="{% url 'index' %}">
+  <div class="charts-block">
+    <div class="chart timeline">
+      <canvas id="repairs-log"></canvas>
+    </div>
+    <div class="chart in-details">
+      <canvas id="repairs-stats"></canvas>
+    </div>
+  </div>
+  <div class="charts-block">
+    <div class="chart timeline">
+      <canvas id="toners-log"></canvas>
+    </div>
+    <div class="chart in-details">
+      <canvas id="toners-stats"></canvas>
+    </div>
+  </div>
+</div>
 {% endblock %}

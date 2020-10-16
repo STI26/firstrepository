@@ -1,0 +1,29 @@
+@import "../../../../dashboard/static/dashboard/scss/values";
+@import "../../../../dashboard/static/dashboard/scss/mixins";
+
+.context {
+  display: flex;
+  flex-direction: column;
+  .charts-block {
+    justify-content: space-around;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    .chart {
+      box-shadow: $main-shadow;
+      margin: 1rem;
+      &.timeline {
+        position: relative;
+        height: 20rem;
+        max-width: 66%;
+        flex: 1 1 66%;
+      }
+      &.in-details {
+        position: relative;
+        height: 20rem;
+        max-width: 34%;
+        flex: 1 1 34%;
+      }
+    }
+  }
+}

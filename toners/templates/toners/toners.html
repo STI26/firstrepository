@@ -73,7 +73,7 @@
     <!-- /filter -->
     <div class="filter-models" id="printer-models-block"></div>
     <!-- main table -->
-    {%  csrf_token %}
+    {% csrf_token %}
     <ol class="table-conteiner table-toners user-select-false" data-fetch="{% url 'toners' %}">
       <li class="item item-conteiner">
         <div class="attribute" data-name="#">#</div>

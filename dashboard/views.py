@@ -4,7 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from dashboard.libs.ldap import LDAPContext
+from dashboard.libs.charts import Charts
 import logging
+import json
 import datetime as dt
 
 # Get an instance of a logger
@@ -13,7 +15,23 @@ log = logging.getLogger(__name__)
 
 @login_required
 def index(request):
-    return render(request, 'dashboard/index.html')
+
+    if request.method == 'POST':
+        # Create class Charts
+        toners = Charts()
+
+        # Get action name
+        operation = request.headers.get('operation')
+
+        # Get data received in ajax request
+        data = json.loads(request.body)
+
+        # Run current operation
+        result = toners.action(operation, data)
+
+        return JsonResponse(result, safe=False)
+    else:
+        return render(request, 'dashboard/index.html')
 
 
 def login_view(request):

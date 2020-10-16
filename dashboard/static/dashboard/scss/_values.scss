@@ -1,5 +1,6 @@
 $white: #FFFFFF;
 $black: #000000;
+$bg-1: #858796;
 $alert-bg-error: #f8d7da;
 $alert-border-error: #f5c6cb;
 $alert-color-error: #721c24;
@@ -35,6 +36,7 @@ $color-sidebar: rgba(#000000, .4);
 
 $input-focus-shadow: 0 0 0 .15rem rgba(#007bff, .25);
 $form-shadow: 5px 5px 15px $color-dark-20;
+$main-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
 
 $base-size: 16px;           // if base 16px
 $nav-size: 1.5rem;          // 24px
