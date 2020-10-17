@@ -110,6 +110,9 @@ const loadTonersLog = (id) => {
         row.querySelector('.attribute.status').title = item.status__name;
         row.querySelector('.attribute.location').innerHTML = item.location__office;
         row.querySelector('.attribute.location').title = item.location__office;
+        const printer = item.equipment__brand__short_name ? `${item.equipment__brand__short_name} ${item.equipment__model}` : '';
+        row.querySelector('.attribute.printer').innerHTML = printer;
+        row.querySelector('.attribute.printer').title = printer;
         row.querySelector('.attribute.note').innerHTML = item.note;
         row.querySelector('.attribute.note').title = item.note;
         fragment.appendChild(row);
@@ -175,13 +178,14 @@ const moveToner = () => {
   const url = document.querySelector('.table-conteiner.table-toners').dataset.fetch;
   const activeRows = document.querySelectorAll('.table-toners .table-active-row');
   const tonerCartridges = Array.from(activeRows, x => x.firstElementChild.dataset.id);
-  // Step 1 of 5
+  // Step 1 of 6 (select department)
   this.selectDepartment = () => {
     if (document.querySelector('[data-multiple-select-menu=move-toner-cartridge]') ||
         !document.querySelector('.table-toners .table-active-row')) {
       return;
     }
     const obj = {};
+    obj.toner_cartridges = tonerCartridges;
     postData(url, obj, 'getDepartments')
       .then(data => {
         const activeRows = document.querySelectorAll('.table-toners .table-active-row');
@@ -205,7 +209,7 @@ const moveToner = () => {
         infoBlock('error', error, 10000);
       });
   };
-  // Step 2 of 5
+  // Step 2 of 6 (select location)
   this.selectLocation = (obj) => {
     postData(url, obj, 'getLocationsAndStatuses')
       .then(data => {
@@ -226,7 +230,7 @@ const moveToner = () => {
         infoBlock('error', error, 10000);
       });
   };
-  // Step 3 of 5
+  // Step 3 of 6 (select status)
   this.selectStatus = (obj, statuses) => {
     if (statuses.length === 0) {
       infoBlock('info', 'В базе отсутствуют "статусы". Вы можете добавте их через панель администратора.', 3000);
@@ -235,13 +239,39 @@ const moveToner = () => {
     // Button action if select status
     this.btnFunc = () => {
       obj.status = document.multipleSelect('move-toner-cartridge').getSelection()[0][0];
-      // Start step 3
-      addNote(obj);
+      // Start step 4
+      selectPrinters(obj);
     };
     document.multipleSelect('move-toner-cartridge').update(statuses, radioMode=true, btnFunc=btnFunc);
   };
-  // Step 4 of 5
-  this.addNote = (obj, statuses) => {
+  // Step 4 of 6 (select printer)
+  this.selectPrinters = (obj) => {
+    postData(url, obj, 'getPrinters')
+      .then(data => {
+        if (!data.link_printer) {
+          obj.equipment = null;
+          // Start step 5
+          addNote(obj);
+          return;
+        }
+        if (data.printers.length === 0) {
+          infoBlock('info', 'С текущем картриджем нет связанных принтеров. Вы можете добавте их через панель администратора.', 3000);
+          return;
+        }
+        // Button action if select printer
+        this.btnFunc = () => {
+          obj.equipment = document.multipleSelect('move-toner-cartridge').getSelection()[0][0];
+          // Start step 5
+          addNote(obj);
+        };
+        document.multipleSelect('move-toner-cartridge').update(data.printers, radioMode=true, btnFunc=btnFunc);
+      })
+      .catch(error => {
+        infoBlock('error', error, 10000);
+      });
+  };
+  // Step 5 of 6 (add note)
+  this.addNote = (obj) => {
     const menu = document.querySelector('[data-multiple-select-menu=move-toner-cartridge]');
     menu.innerHTML = '';
     const btnBlockHTML = `
@@ -255,13 +285,13 @@ const moveToner = () => {
       event.stopPropagation();
       event.preventDefault();
       obj.note = document.querySelector('#toner-cartridge-log--note').value;
+      // Start step 6
       saveObj(obj);
     });
     menu.appendChild(btnBlock);
   };
-  // Step 5 of 5
+  // Step 6 of 6 (try to save)
   this.saveObj = (obj) => {
-    obj.toner_cartridges = tonerCartridges;
     obj.date = new Date();
     console.log('activeRows', activeRows);
     console.log('obj', obj);
@@ -326,6 +356,8 @@ const saveToner = () => {
       if (data.status) {
         infoBlock('success', data.message, 3000);
         loadToners();
+      } else {
+        infoBlock('error', data.message, 3000);
       }
     })
     .catch(error => {

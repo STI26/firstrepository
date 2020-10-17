@@ -26,7 +26,13 @@
     <!-- Nav Item - User Information -->
     <li class="nav-item dropdown responsive">
       <a href="javascript:void(0);" class="dropdown-btn" id="user-menu">
-        <span id="username">{{ user.get_full_name }}</span>
+        <span id="username">
+          {% if user.get_full_name %}
+            {{ user.get_full_name }}
+          {% else %}
+            {{ user.get_username }}
+          {% endif %}
+        </span>
         <i data-feather="user"></i>
       </a>
       <!-- Dropdown - User Information -->

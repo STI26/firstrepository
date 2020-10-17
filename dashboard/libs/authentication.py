@@ -25,17 +25,20 @@ class LDAPBackend(ModelBackend):
         if username is None or password is None:
             return None
 
-        with Ldap(username, password, context) as oes:
+        try:
+            with Ldap(username, password, context) as oes:
 
-            isValid = oes.validUser()
-            groupDN = oes.checkSecurityEquals(SECURITY_EQUALS)
-            userInfo = oes.getUserInfo()
+                isValid = oes.validUser()
+                groupDN = oes.checkSecurityEquals(SECURITY_EQUALS)
+                userInfo = oes.getUserInfo()
 
-            if not (isValid or groupDN or userInfo):
-                return None
+                if not (isValid or groupDN or userInfo):
+                    return None
 
-            userInfo['groupDN'] = groupDN
-            user = self._updateOrCreateUser(userInfo)
+                userInfo['groupDN'] = groupDN
+                user = self._updateOrCreateUser(userInfo)
+        except TypeError:
+            return None
 
         return user
 

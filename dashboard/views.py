@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from dashboard.libs.ldap import LDAPContext
 from dashboard.libs.charts import Charts
 import logging
@@ -47,12 +48,22 @@ def login_view(request):
         password = request.POST['password']
         context = request.POST.get('context', '')
 
+        if context:
+            # Check the connection to remote server
+            try:
+                with LDAPContext():
+                    pass
+            except TypeError:
+                messages.error(request, 'LDAP сервер не доступен.')
+                return redirect('login_view')
+
         user = authenticate(request,
                             username=username,
                             password=password,
-                            context=context)
+                            context=context, )
         if user is not None:
             login(request, user)
+            log.info(f'---AUTHENTICATION_BACKENDS: {user.backend}')
             log.info(f'---Login: {user.username} - {dt.datetime.now()}')
             return redirect('index')
         else:
@@ -73,10 +84,18 @@ def browser_not_supported(request):
         return render(request, 'dashboard/browsernotsupported.html')
 
 
+@require_POST
 def contexts(request):
     """Load contexts"""
 
-    with LDAPContext() as c:
-        contexts = c.getContexts(attr=['description'])
+    try:
+        with LDAPContext() as c:
+            contexts = c.getContexts(attr=['description'])
+    except TypeError:
+        data = {'status': False,
+                'message': 'Невозможно загрузить контексты.'}
+    else:
+        data = {'status': True,
+                'contexts': contexts}
 
-    return JsonResponse(contexts, safe=False)
+    return JsonResponse(data, safe=False)

@@ -4,10 +4,14 @@ const openContextsMenu = (url) => {
   // Load contexts
   postData(url)
     .then(data => {
-      treeView('treeContexts').render(data);
+      if (!data.status) {
+        infoBlock('error', data.message, 5000);
+      } else {
+        treeView('treeContexts').render(data.contexts);
+      }
     })
     .catch(error => {
-      infoBlock('error', error);
+      infoBlock('error', error, 5000);
     });
 }
 /* Login - contexts: Apply context */

@@ -38,7 +38,7 @@ class LDAPContext(object):
 
         self.connection.unbind()
 
-        return True
+        return None
 
     @property
     def connection(self):
@@ -207,8 +207,11 @@ class Ldap(object):
         self._server = Server(LDAP_HOST, use_ssl=True)
 
         # Authentication simple
-        with LDAPContext() as cont:
-            self._context = cont.getContextDN(context)
+        try:
+            with LDAPContext() as cont:
+                self._context = cont.getContextDN(context)
+        except TypeError as e:
+            raise e
         self._usernameID = f'{username}.{context}'
         self._username = username
         self._userDN = f'cn={self._username},{self._context}'

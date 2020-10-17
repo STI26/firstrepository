@@ -29,34 +29,32 @@ class Charts(object):
     def getDataForCharts(self):
         """Get data for charts."""
 
-        range = (datetime.date(2005, 1, 1), datetime.date(2020, 3, 31))
-        field = 'date_in' if self.data.get('repaired') else 'date_out'
+        range = (datetime.date(2005, 1, 1), datetime.date(2020, 10, 31))
         kind = self.data.get('kind')
 
-        repairsIn = Repairs.objects.filter(
-            is_deleted=False,
-            date_in__range=range,
-        )
+        return {'repairsIn': self._getRepairsStats(range, 'date_in', kind),
+                'repairsOut': self._getRepairsStats(range, 'date_out', kind),
+                'toners': self._getTonersStats(range, 'date', kind), }
 
-        repairsOut = Repairs.objects.filter(
-            is_deleted=False,
-            date_out__range=range,
-        )
+    def _getRepairsStats(self, range, field, kind):
 
-        return {'repairsIn': self._getRepairsStats(repairsIn, field, kind),
-                'repairsOut': self._getRepairsStats(repairsOut, field, kind), }
+        filter = {
+            'is_deleted': False,
+            f'{field}__range': range,
+        }
+        repairs = Repairs.objects.filter(**filter)
 
-    def _getRepairsStats(self, QuerySet, field, kind):
-
-        repairsLog = QuerySet.annotate(
-            group=Trunc(field, kind, output_field=DateTimeField()),
+        # Get the number of records per kind for a period of time
+        repairsLog = repairs.annotate(
+            group=Trunc(field, kind, output_field=DateTimeField())
         ).order_by(
             'group'
         ).values(
             'group'
         ).annotate(count=Count('id'))
 
-        repairsStats = QuerySet.order_by(
+        # Get the number of equipment of each type for a period of time
+        repairsStats = repairs.order_by(
             'equipment__type'
         ).values(
             'equipment__type__name'
@@ -65,3 +63,45 @@ class Charts(object):
         )
 
         return {'log': list(repairsLog), 'stats': list(repairsStats)}
+
+    def _getTonersStats(self, range, field, kind):
+
+        filter = {
+            'is_deleted': False,
+            'status__link_printer': True,
+            f'{field}__range': range,
+        }
+        toners = TonerCartridgesLog.objects.filter(**filter)
+
+        # Get the number of records per kind for a period of time
+        tonersLog = toners.annotate(
+            group=Trunc(field, kind, output_field=DateTimeField())
+        ).order_by(
+            'group'
+        ).values(
+            'group'
+        ).annotate(count=Count('id'))
+
+        # Get the number of printers of each type for a period of time
+        tonersStats = toners.order_by(
+            'equipment__brand', 'equipment__model',
+        ).values(
+            'equipment__brand__short_name', 'equipment__model',
+        ).annotate(
+            count=Count('equipment__type')
+        )
+
+        tonersStats = map(self._combineEquipmentName, tonersStats)
+
+        return {'log': list(tonersLog), 'stats': list(tonersStats)}
+
+    def _combineEquipmentName(self, dictWithEquipment):
+
+        pattern = '{} {}'.format(
+            dictWithEquipment.pop('equipment__brand__short_name'),
+            dictWithEquipment.pop('equipment__model'),
+        )
+
+        dictWithEquipment.update({'printer': pattern})
+
+        return dictWithEquipment

@@ -5,7 +5,7 @@ from repairs.models import (Departments, Equipment, Locations)
 class NamesOfTonerCartridge(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField(unique=True)
-    printers = models.ManyToManyField(Equipment, verbose_name='Принтара')
+    printers = models.ManyToManyField(Equipment, verbose_name='Принтеры')
 
     def __str__(self):
         return self.name
@@ -20,6 +20,7 @@ class Statuses(models.Model):
     is_deleted = models.BooleanField(default=False)
     name = models.TextField()
     logo = models.TextField()
+    link_printer = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -59,6 +60,10 @@ class TonerCartridgesLog(models.Model):
     location = models.ForeignKey(Locations,
                                  on_delete=models.CASCADE,
                                  verbose_name='Расположение')
+    equipment = models.ForeignKey(Equipment,
+                                  on_delete=models.CASCADE,
+                                  null=True, blank=True,
+                                  verbose_name='Принтер')
     status = models.ForeignKey(Statuses,
                                on_delete=models.CASCADE,
                                verbose_name='Статус')

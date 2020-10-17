@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.core.paginator import Paginator
 from django.db.models import Q, Max
+from django.db import IntegrityError
 from repairs.models import (Departments, Equipment, Locations)
 from toners.models import (NamesOfTonerCartridge, Statuses,
                            TonerCartridges, TonerCartridgesLog)
@@ -14,6 +15,7 @@ class DataToners(object):
     remove() - Remove current row in database.
     move() - Save movement toner-cartridge in log.
     getDepartments() - Get departments.
+    getPrinters() - Get available printers.
     getLocationsAndStatuses() - Get locations with current department.
                                 Get all statuses.
     openBlankForm() - Preparing a form for adding new toner-cartridge.
@@ -159,7 +161,8 @@ class DataToners(object):
         # Returned fields
         fields = ['date', 'location__office',
                   'status__name', 'status__logo',
-                  'note', ]
+                  'equipment__brand__short_name',
+                  'equipment__model', 'note', ]
 
         return {'status': True,
                 'message': '',
@@ -169,13 +172,16 @@ class DataToners(object):
     def save(self):
         """Save current row in database."""
 
-        new = TonerCartridges(
-            prefix=self.data['prefix'].upper(),
-            number=int(self.data['number']),
-            owner=Departments.objects.get(pk=self.data['owner']),
-        )
+        try:
+            new = TonerCartridges.objects.create(
+                prefix=self.data['prefix'].upper(),
+                number=int(self.data['number']),
+                owner=Departments.objects.get(pk=self.data['owner']),
+            )
+        except IntegrityError:
+            return {'status': False,
+                    'message': 'Запись с таким ID уже есть.'}
 
-        new.save()
         names = []
         for nameID in self.data['names']:
             name = NamesOfTonerCartridge.objects.get(pk=int(nameID))
@@ -211,13 +217,23 @@ class DataToners(object):
     def move(self):
         """Save movement toner-cartridge in log."""
 
+        status = Statuses.objects.get(pk=int(self.data['status']))
+        equipment = Equipment.objects.filter(pk=self.data['equipment']).first()
+
+        # Check selected printer
+        if status.link_printer and not equipment:
+            message = 'При выбраном статусе "{}" неоходимо выбрать принтер.'
+            return {'status': False,
+                    'message': message.format(status.name), }
+
         toners = []
         for toner in self.data['toner_cartridges']:
             new = TonerCartridgesLog.objects.create(
                 date=self.data['date'],
                 toner_cartridge=TonerCartridges.objects.get(pk=int(toner)),
                 location=Locations.objects.get(pk=int(self.data['location'])),
-                status=Statuses.objects.get(pk=int(self.data['status'])),
+                status=status,
+                equipment=equipment,
                 note=self.data.get('note', ''),
             )
             toners.append(new.id)
@@ -242,6 +258,33 @@ class DataToners(object):
 
         return {'departments': list(departments)}
 
+    def getPrinters(self):
+        """Get available printers."""
+
+        link_printer = Statuses.objects.get(
+            pk=int(self.data['status'])
+        ).link_printer
+
+        if not link_printer:
+            return {'link_printer': link_printer}
+        else:
+            toners = TonerCartridges.objects.get(
+                pk=self.data.get('toner_cartridges')[0]
+            ).names.all()
+
+            printers = NamesOfTonerCartridge.objects.filter(
+                id__in=toners
+            ).distinct().values_list(
+                'printers__id',
+                'printers__brand__short_name',
+                'printers__model'
+            )
+
+            printers = map(lambda x: [x[0], ' '.join(x[1:])], printers)
+
+        return {'link_printer': link_printer,
+                'printers': list(printers), }
+
     def getLocationsAndStatuses(self):
         """Get locations with current department. Get all statuses."""
 
@@ -249,8 +292,13 @@ class DataToners(object):
 
         locations = Locations.objects.filter(is_deleted=False, department=d) \
             .values('id', 'office')
-        statuses = Statuses.objects.filter(is_deleted=False) \
-            .values('id', 'name')
+
+        if len(self.data['toner_cartridges']) == 1:
+            filter = {'is_deleted': False}
+        else:
+            filter = {'is_deleted': False, 'link_printer': False}
+
+        statuses = Statuses.objects.filter(**filter).values('id', 'name')
 
         return {'locations': list(locations),
                 'statuses': list(statuses), }

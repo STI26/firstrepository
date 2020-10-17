@@ -171,14 +171,23 @@ function renderCharts() {
       const repairsLogIn = {info: data.repairsIn.log.map(i => i.count), name: 'Принято в ремонт'};
       const repairsLogOut = {info: data.repairsOut.log.map(i => i.count), name: 'Выдано из ремонта'};
       const repairsLogData = [repairsLogIn, repairsLogOut];
-      const chartRepairsLog = createLineChart('repairs-log', repairsLogLabel, repairsLogData);
+      createLineChart('repairs-log', repairsLogLabel, repairsLogData);
       // Repairs stats
       const repairsStatsLabelIn = data.repairsIn.stats.map(i => i.equipment__type__name);
       const repairsStatsIn = data.repairsIn.stats.map(i => i.count);
+      createPieChart('repairs-stats', repairsStatsLabelIn, repairsStatsIn);
       // TODO: add chart for out
       const repairsStatsLabelOut = data.repairsOut.stats.map(i => i.equipment__type__name);
       const repairsStatsOut = data.repairsOut.stats.map(i => i.count);
-      const chartRepairsStats = createPieChart('repairs-stats', repairsStatsLabelIn, repairsStatsIn);
+      // createPieChart('repairs-stats', repairsStatsLabelIn, repairsStatsIn);
+      // Toners log
+      const tonersLogLabel = data.toners.log.map(i => setDateLabel(i.group, kind));
+      const tonersLog = {info: data.toners.log.map(i => i.count), name: 'Установлено картриджей'};
+      createLineChart('toners-log', tonersLogLabel, [tonersLog]);
+      // Toners stats
+      const tonersStatsLabel = data.toners.stats.map(i => i.printer);
+      const tonersStats = data.toners.stats.map(i => i.count);
+      createPieChart('toners-stats', tonersStatsLabel, tonersStats);
     })
     .catch(error => {
       infoBlock('error', error, 5000);

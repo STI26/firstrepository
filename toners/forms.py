@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.safestring import mark_safe
 
 
 class NamesOfTonerCartridgeForm(forms.ModelForm):
@@ -15,5 +16,10 @@ class StatusesForm(forms.ModelForm):
     logo = forms.CharField(
         widget=forms.TextInput,
         label='Имя иконки',
-        help_text='Выберите имя feathericon (https://feathericons.com/)',
+        help_text=mark_safe("""
+            Выберите имя feathericon (
+            <a href="https://feathericons.com/">
+                https://feathericons.com/
+            </a>)
+            """),
     )
