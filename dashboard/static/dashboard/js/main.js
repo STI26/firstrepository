@@ -6,6 +6,12 @@ const cfgFlatpickr = {
   'locale': 'ru',
   // disableMobile: "true",
 };
+const cfgFlatpickrRange = {
+  mode: 'range',
+  dateFormat: 'd.m.y',
+  'locale': 'ru',
+  // disableMobile: "true",
+};
 
 function docReady(fn) {
   // see if DOM is already available
@@ -320,7 +326,7 @@ const infoBlock = (type, message, timeout=null) => {
   return this;
 };
 /* Convert to datetime with local timezone */
-const addTimeZone = (dt, toString=false, onlyDate=false) => {
+const addTimeZone = (dt, toString=false, onlyDate=false, formatUS=false) => {
   if (dt === '' || dt === null) {
     return '';
   }
@@ -331,11 +337,16 @@ const addTimeZone = (dt, toString=false, onlyDate=false) => {
   }
   const date = (d.getDate() < 10 ? `0${d.getDate()}` : d.getDate());
   const month = (d.getMonth() < 9 ? `0${d.getMonth() + 1}` : d.getMonth() + 1);
-  if (onlyDate) {
+  if (onlyDate && !formatUS) {
     return `${date}.${month}.${d.getFullYear()}`;
+  } else if (onlyDate && formatUS) {
+    return `${d.getFullYear()}-${month}-${date}`;
   }
   const hours = (d.getHours() < 10 ? `0${d.getHours()}` : d.getHours());
   const minutes = (d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes());
+  if (formatUS) {
+    return `${d.getFullYear()}-${month}-${date} ${hours}:${minutes}`;
+  }
   return `${date}.${month}.${d.getFullYear()} ${hours}:${minutes}`;
 };
 // Methods for modal object
@@ -371,6 +382,7 @@ docReady(function() {
 
   // https://github.com/flatpickr/flatpickr
   flatpickr('.flatpickr', cfgFlatpickr);
+  flatpickr('.flatpickr-range', cfgFlatpickrRange);
 
   // Toggle dropdowns
   document.querySelectorAll('.dropdown-btn').forEach((item, i) => {

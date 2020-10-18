@@ -29,8 +29,9 @@ class Charts(object):
     def getDataForCharts(self):
         """Get data for charts."""
 
-        range = (datetime.date(2005, 1, 1), datetime.date(2020, 10, 31))
-        kind = self.data.get('kind')
+        range = self._getDateRange(self.data.get('range'))
+        customRange = tuple(map(self._convertDate, self.data.get('customRange')))
+        kind = self.data.get('period')
 
         return {'repairsIn': self._getRepairsStats(range, 'date_in', kind),
                 'repairsOut': self._getRepairsStats(range, 'date_out', kind),
@@ -38,10 +39,11 @@ class Charts(object):
 
     def _getRepairsStats(self, range, field, kind):
 
-        filter = {
-            'is_deleted': False,
-            f'{field}__range': range,
-        }
+        filter = {'is_deleted': False}
+
+        if range:
+            filter[f'{field}__range'] = range
+
         repairs = Repairs.objects.filter(**filter)
 
         # Get the number of records per kind for a period of time
@@ -69,8 +71,11 @@ class Charts(object):
         filter = {
             'is_deleted': False,
             'status__link_printer': True,
-            f'{field}__range': range,
         }
+
+        if range:
+            filter[f'{field}__range'] = range
+
         toners = TonerCartridgesLog.objects.filter(**filter)
 
         # Get the number of records per kind for a period of time
@@ -105,3 +110,33 @@ class Charts(object):
         dictWithEquipment.update({'printer': pattern})
 
         return dictWithEquipment
+
+    def _convertDate(self, strDate):
+
+        return datetime.strptime(strDate, '%Y-%m-%dT%H:%M:%S.%fZ').date()
+
+    def _checkCustomRange(self, customRange):
+
+        if not customRange or len(customRange) == 2:
+            return self._getDateRange('week')
+
+        return tuple(map(self._convertDate, customRange))
+
+    def _getDateRange(self, range):
+
+        now = datetime.datetime.now()
+
+        patterns = {
+            'all': None,
+            'year': ((now - datetime.timedelta(days=3*365)).date(),
+                     now.date(), ),
+            'month': ((now - datetime.timedelta(days=3*30)).date(),
+                      now.date(), ),
+            'week': ((now - datetime.timedelta(days=3*37)).date(),
+                     now.date(), ),
+            'custom': self._checkCustomRange(self.data.get('customRange')),
+        }
+        print('----------------------')
+        print(patterns[range])
+
+        return patterns[range]

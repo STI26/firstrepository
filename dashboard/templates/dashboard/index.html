@@ -16,20 +16,79 @@
 {% csrf_token %}
 <div class="context" id="charts" data-fetch="{% url 'index' %}">
   <div class="charts-block">
-    <div class="chart timeline">
-      <canvas id="repairs-log"></canvas>
-    </div>
-    <div class="chart in-details">
-      <canvas id="repairs-stats"></canvas>
+    <div class="charts-wraper filters">
+      <ul class="charts-header index-filter-bar">
+        <li>
+          <input id="index-filter-all-time" type="radio" name="index-filter" value="all-time">
+          <label for="index-filter-all-time">Всё время</label>
+        </li>
+        <li>
+          <input id="index-filter-year" type="radio" name="index-filter" value="year">
+          <label for="index-filter-year">Год</label>
+        </li>
+        <li>
+          <input id="index-filter-month" type="radio" name="index-filter" value="month">
+          <label for="index-filter-month">Месяц</label>
+        </li>
+        <li>
+          <input id="index-filter-week" type="radio" name="index-filter" value="week">
+          <label for="index-filter-week">Неделя</label>
+        </li>
+        <li>
+          <input id="index-filter-custom" type="radio" name="index-filter" value="custom">
+          <label for="index-filter-custom">Выбрать</label>
+        </li>
+        <li>
+          <input id="index-filter-range" class="flatpickr-range" type="text" autocomplete="off" placeholder="">
+        </li>
+        <li>
+          <select id="index-filter-period" class="index-filter-period">
+            <div class="options-wraper">
+              <option value="day">По дням</option>
+              <option value="month">По месецам</option>
+              <option value="year">По годам</option>
+            </div>
+          </select>
+        </li>
+      </ul>
     </div>
   </div>
   <div class="charts-block">
-    <div class="chart timeline">
-      <canvas id="toners-log"></canvas>
+    <div class="charts-wraper timeline top-radius">
+      <div class="charts-header top-radius">количество ремонтов</div>
+      <div class="charts-body">
+        <div class="chart-area">
+          <canvas id="repairs-log"></canvas>
+        </div>
+      </div>
     </div>
-    <div class="chart in-details">
-      <canvas id="toners-stats"></canvas>
+    <div class="charts-wraper in-details top-radius">
+      <div class="charts-header top-radius">виды оборудования</div>
+      <div class="charts-body">
+        <div class="chart-area">
+          <canvas id="repairs-stats"></canvas>
+        </div>
+      </div>
     </div>
   </div>
+  <div class="charts-block">
+    <div class="charts-wraper timeline top-radius">
+      <div class="charts-header top-radius">количество установленных картриджей</div>
+      <div class="charts-body">
+        <div class="chart-area">
+          <canvas id="toners-log"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="charts-wraper in-details top-radius">
+      <div class="charts-header top-radius">виды принтеров</div>
+      <div class="charts-body">
+        <div class="chart-area">
+          <canvas id="toners-stats"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
