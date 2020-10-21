@@ -1,0 +1,79 @@
+.context {
+  display: flex;
+  flex-direction: column;
+
+  .charts-block {
+    justify-content: space-around;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+
+    .top-radius {
+      border-top-left-radius: $charts-border-radius;
+      border-top-right-radius: $charts-border-radius;
+    }
+
+    .charts-wraper {
+      box-shadow: $main-shadow;
+      margin: 1rem;
+
+      &.filters {
+        position: relative;
+        max-width: 100%;
+        border-radius: $charts-border-radius;
+        flex: 1 1 100%;
+      }
+
+      &.timeline {
+        position: relative;
+        max-width: 100%;
+        flex: 1 1 auto;
+      }
+
+      &.in-details {
+        position: relative;
+        max-width: 100%;
+        flex: 1 1 auto;
+      }
+
+      .charts-header {
+        width: 100%;
+        padding: 1rem;
+        background-color: $charts-header-bg-color;
+        color: $charts-header-color;
+        border-bottom: $charts-header-border;
+        text-align: left;
+        font-size: 1.2rem;
+      }
+
+      .charts-body {
+        width: 100%;
+        height: 100%;
+        padding: 1rem;
+
+        .chart-area {
+          position: relative;
+          width: 100%;
+          height: 20rem;
+        }
+      }
+    }
+  }
+}
+
+// Tablet+ version
+@include tablet {
+  .context .charts-block {
+    flex-direction: row;
+
+    .timeline {
+      max-width: 66% !important;
+      flex: 1 1 66% !important;
+    }
+
+    .in-details {
+      max-width: 34% !important;
+      flex: 1 1 34% !important;
+    }
+  }
+}

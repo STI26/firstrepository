@@ -86,6 +86,16 @@
 		font-size: $base-size;
 	}
 
+	select {
+		// background-image: url('/static/dashboard/img/arrow-down.png');
+		// background-size: .7rem;
+		// background-repeat: no-repeat;
+		// background-position: 95% 50%;
+		appearance: none;
+		-moz-appearance: none;
+		-webkit-appearance: none;
+	}
+
 	input, select, button {
 		background-color: $white;
 		border: $btn-border;

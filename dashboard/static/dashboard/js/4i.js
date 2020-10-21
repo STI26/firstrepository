@@ -138,7 +138,7 @@ function createPieChart(canvasID, labels, data, cutoutPercentage=80) {
   });
   return myPieChart;
 }
-function setDateLabel(dt, kind) {
+function setDateLabel(dt, period) {
   d = new Date(dt);
   d.setTime(d.getTime() + (-d.getTimezoneOffset() * 60000));
   const date = (d.getDate() < 10 ? `0${d.getDate()}` : d.getDate());
@@ -148,7 +148,7 @@ function setDateLabel(dt, kind) {
     month: `${month}.${d.getFullYear()}`,
     day: `${date}.${month}.${d.getFullYear()}`,
   };
-  return obj[kind];
+  return obj[period];
 }
 /* Render Charts */
 function renderCharts() {
@@ -157,29 +157,32 @@ function renderCharts() {
   const obj = defaultSettings.get();
   postData(url, obj, 'getDataForCharts')
     .then(data => {
-      console.log(data);
       // Repairs log
-      const repairsLogLabel = data.repairsIn.log.map(i => setDateLabel(i.group, kind));
+      const repairsLogLabel = data.repairsIn.log.map(i => setDateLabel(i.group, obj.period));
       const repairsLogIn = {info: data.repairsIn.log.map(i => i.count), name: 'Принято в ремонт'};
       const repairsLogOut = {info: data.repairsOut.log.map(i => i.count), name: 'Выдано из ремонта'};
       const repairsLogData = [repairsLogIn, repairsLogOut];
-      createLineChart('repairs-log', repairsLogLabel, repairsLogData);
+      window.repairsLineChart && window.repairsLineChart.destroy();
+      window.repairsLineChart = createLineChart('repairs-log', repairsLogLabel, repairsLogData);
       // Repairs stats
       const repairsStatsLabelIn = data.repairsIn.stats.map(i => i.equipment__type__name);
       const repairsStatsIn = data.repairsIn.stats.map(i => i.count);
-      createPieChart('repairs-stats', repairsStatsLabelIn, [repairsStatsIn]);
+      window.repairsPieChart && window.repairsPieChart.destroy();
+      window.repairsPieChart =  createPieChart('repairs-stats', repairsStatsLabelIn, [repairsStatsIn]);
       // TODO: add chart for out
       const repairsStatsLabelOut = data.repairsOut.stats.map(i => i.equipment__type__name);
       const repairsStatsOut = data.repairsOut.stats.map(i => i.count);
       // createPieChart('repairs-stats', repairsStatsLabelIn, repairsStatsIn);
       // Toners log
-      const tonersLogLabel = data.toners.log.map(i => setDateLabel(i.group, kind));
+      const tonersLogLabel = data.toners.log.map(i => setDateLabel(i.group, obj.period));
       const tonersLog = {info: data.toners.log.map(i => i.count), name: 'Установлено картриджей'};
-      createLineChart('toners-log', tonersLogLabel, [tonersLog]);
+      window.tonersLineChart && window.tonersLineChart.destroy();
+      window.tonersLineChart = createLineChart('toners-log', tonersLogLabel, [tonersLog]);
       // Toners stats
       const tonersStatsLabel = data.toners.stats.map(i => i.printer);
       const tonersStats = data.toners.stats.map(i => i.count);
-      createPieChart('toners-stats', tonersStatsLabel, [tonersStats]);
+      window.tonersPieChart && window.tonersPieChart.destroy();
+      window.tonersPieChart = createPieChart('toners-stats', tonersStatsLabel, [tonersStats]);
     })
     .catch(error => {
       infoBlock('error', error, 5000);
@@ -203,17 +206,9 @@ const defaultSettings = {
       const data = JSON.parse(localStorage.getItem('dashboard'));
       const range = document.querySelector(`#index-filter-${data.range}`);
       checkRange(data.range);
-      const dates = flatpickr('#index-filter-range', cfgFlatpickrRange);
+      flatpickr('#index-filter-range', cfgFlatpickrRange).clear();
       const period = document.querySelector('#index-filter-period');
       range ? range.checked = true : document.querySelector('#index-filter-week').checked = true;
-
-      if (data.customRange) {
-        const fromDate = addTimeZone(data.customRange[0], true, true, true);
-        const toDate = addTimeZone(data.customRange[1], true, true, true);
-        dates.setDate([new Date(fromDate), new Date(toDate)]);
-      } else {
-        dates.clear();
-      }
 
       if (data.period && period) {
         period.value = data.period;
@@ -244,15 +239,21 @@ function animation(el) {
   };
   return this;
 }
-/*  */
+/* Show advanced menu in top filter */
 function checkRange(range) {
+  const rangeEl = document.querySelector('#index-filter-range');
+  const periodEl = document.querySelector('#index-filter-period');
+
   if (range === 'custom') {
-    animation(document.querySelector('#index-filter-range')).show();
-    animation(document.querySelector('#index-filter-period')).show();
+    animation(rangeEl).show();
+    animation(periodEl).show();
+    return rangeEl.value;
   } else {
-    animation(document.querySelector('#index-filter-range')).hide();
-    animation(document.querySelector('#index-filter-period')).hide();
+    animation(rangeEl).hide();
+    animation(periodEl).hide();
   }
+
+  return null;
 }
 
 docReady(function() {
@@ -263,13 +264,19 @@ docReady(function() {
   // Change date range in top filter
   document.querySelectorAll('[name=index-filter]').forEach((item) => {
     item.addEventListener('change', () => {
-      checkRange(item.value);
       defaultSettings.update();
-      renderCharts();
+      if (checkRange(item.value) === null) {
+        renderCharts();
+      }
     });
   });
   // Select custom date range in top filter
   flatpickr('#index-filter-range', cfgFlatpickrRange).config.onChange.push(function() {
+    defaultSettings.update();
+    renderCharts();
+  });
+  // Select custom date period in top filter
+  document.querySelector('#index-filter-period').addEventListener('change', () => {
     defaultSettings.update();
     renderCharts();
   });

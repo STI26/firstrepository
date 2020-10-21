@@ -1,9 +1,8 @@
 import datetime
-from django.db.models import Q, Max, Count, DateTimeField
+from django.db.models import Count, DateTimeField
 from django.db.models.functions import Trunc
-from repairs.models import (Repairs, Departments, Equipment, Locations)
-from toners.models import (NamesOfTonerCartridge, Statuses,
-                           TonerCartridges, TonerCartridgesLog)
+from repairs.models import Repairs
+from toners.models import TonerCartridgesLog
 
 
 class Charts(object):
@@ -30,8 +29,7 @@ class Charts(object):
         """Get data for charts."""
 
         range = self._getDateRange(self.data.get('range'))
-        customRange = tuple(map(self._convertDate, self.data.get('customRange')))
-        kind = self.data.get('period')
+        kind = self._getDatePeriod(self.data.get('range'))
 
         return {'repairsIn': self._getRepairsStats(range, 'date_in', kind),
                 'repairsOut': self._getRepairsStats(range, 'date_out', kind),
@@ -113,12 +111,13 @@ class Charts(object):
 
     def _convertDate(self, strDate):
 
-        return datetime.strptime(strDate, '%Y-%m-%dT%H:%M:%S.%fZ').date()
+        return datetime.datetime.strptime(strDate,
+                                          '%Y-%m-%dT%H:%M:%S.%fZ').date()
 
     def _checkCustomRange(self, customRange):
 
-        if not customRange or len(customRange) == 2:
-            return self._getDateRange('week')
+        if not customRange or len(customRange) != 2:
+            return None
 
         return tuple(map(self._convertDate, customRange))
 
@@ -127,16 +126,26 @@ class Charts(object):
         now = datetime.datetime.now()
 
         patterns = {
-            'all': None,
-            'year': ((now - datetime.timedelta(days=3*365)).date(),
+            'all-time': None,
+            'year': ((now - datetime.timedelta(days=365)).date(),
                      now.date(), ),
-            'month': ((now - datetime.timedelta(days=3*30)).date(),
+            'month': ((now - datetime.timedelta(days=30)).date(),
                       now.date(), ),
-            'week': ((now - datetime.timedelta(days=3*37)).date(),
+            'week': ((now - datetime.timedelta(days=7)).date(),
                      now.date(), ),
             'custom': self._checkCustomRange(self.data.get('customRange')),
         }
-        print('----------------------')
-        print(patterns[range])
 
-        return patterns[range]
+        return patterns.get(range)
+
+    def _getDatePeriod(self, range):
+
+        patterns = {
+            'all-time': 'year',
+            'year': 'month',
+            'month': 'day',
+            'week': 'day',
+            'custom': self.data.get('period', 'day'),
+        }
+
+        return patterns.get(range)

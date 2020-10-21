@@ -45,5 +45,12 @@
     border-radius: $btn-border-radius;
     border: 1px solid $btn-color-default-50;
     background-color: $accent-color;
+		background-image: url('/static/dashboard/img/arrow-down.png');
+		background-size: .7rem;
+		background-repeat: no-repeat;
+		background-position: 95% 50%;
+		appearance: none;
+		-moz-appearance: none;
+		-webkit-appearance: none;
   }
 }
