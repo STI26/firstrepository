@@ -36,5 +36,9 @@ var browser = get_browser()
 var isSupported = isSupported(browser);
 
 if (!isSupported) {
+<<<<<<< HEAD
   window.location = '/browsernotsupported';
+=======
+  window.location = location.hostname + "/browsernotsupported";
+>>>>>>> refs/remotes/origin/develop
 }
