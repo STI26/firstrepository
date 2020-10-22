@@ -8,7 +8,7 @@ function get_browser() {
     tem = ua.match(/\bOPR\/(\d+)/)
     if (tem != null) { return { name: 'Opera', version: tem[1] }; }
   }
-  if (window.navigator.userAgent.indexOf("Edge") > -1) {
+  if (window.navigator.userAgent.indexOf('Edge') > -1) {
     tem = ua.match(/\Edge\/(\d+)/)
     if (tem != null) { return { name: 'Edge', version: tem[1] }; }
   }
@@ -22,11 +22,11 @@ function get_browser() {
 function isSupported(browser) {
   var supported = false;
   // Browser Support for ES6 (ECMAScript 2015)
-  if (browser.name === "Chrome" && browser.version >= 58) {
+  if (browser.name === 'Chrome' && browser.version >= 58) {
     supported = true;
-  } else if (browser.name === "Firefox" && browser.version >= 54) {
+  } else if (browser.name === 'Firefox' && browser.version >= 54) {
     supported = true;
-  } else if (browser.name === "Edge") {
+  } else if (browser.name === 'Edge') {
     supported = true;
   }
   return supported;
@@ -36,5 +36,5 @@ var browser = get_browser()
 var isSupported = isSupported(browser);
 
 if (!isSupported) {
-  window.location = location.origin + "/browsernotsupported";
+  window.location = '/browsernotsupported';
 }
