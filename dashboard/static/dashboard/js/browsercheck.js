@@ -36,5 +36,5 @@ var browser = get_browser()
 var isSupported = isSupported(browser);
 
 if (!isSupported) {
-  window.location = location.origin + "/browsernotsupported";
+  window.location = location.hostname + "/browsernotsupported";
 }
