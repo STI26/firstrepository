@@ -1,3 +1,8 @@
-Django=3.0.7
-ldap3=2.6.1
-python-decouple=3.3
+asgiref==3.3.1
+Django==3.0.7
+ldap3==2.6.1
+psycopg2-binary==2.8.6
+pyasn1==0.4.8
+python-decouple==3.3
+pytz==2020.4
+sqlparse==0.4.1
