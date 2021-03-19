@@ -1,5 +1,5 @@
 asgiref==3.3.1
-Django==3.0.7
+Django==3.1.6
 ldap3==2.6.1
 psycopg2-binary==2.8.6
 pyasn1==0.4.8
